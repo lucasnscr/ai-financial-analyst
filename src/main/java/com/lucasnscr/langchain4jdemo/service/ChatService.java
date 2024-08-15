@@ -1,75 +1,59 @@
 package com.lucasnscr.langchain4jdemo.service;
 
-import com.lucasnscr.langchain4jdemo.model.AiAssistantModelCommunication;
-import dev.langchain4j.data.embedding.Embedding;
-import dev.langchain4j.data.message.AiMessage;
-import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.model.StreamingResponseHandler;
-import dev.langchain4j.model.chat.StreamingChatLanguageModel;
-import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.embedding.onnx.allminilml6v2.AllMiniLmL6V2EmbeddingModel;
-import dev.langchain4j.model.output.Response;
-import dev.langchain4j.service.TokenStream;
-import dev.langchain4j.store.embedding.EmbeddingMatch;
-import dev.langchain4j.store.embedding.EmbeddingStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.chat.prompt.SystemPromptTemplate;
+import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 
 @Service
 public class ChatService {
 
-    private final AiAssistantModelCommunication assistant;
-    private EmbeddingStore embeddingStore;
+    private static final Logger log = LoggerFactory.getLogger(ChatService.class);
+
+    @Value("classpath:/prompts/system-chatbot.st")
+    private Resource qaSystemPromptResource;
+
+    private final ChatClient chatClient;
+    private final VectorStore vectorStore;
 
     @Autowired
-    public ChatService(AiAssistantModelCommunication assistant,
-                       EmbeddingStore embeddingStore) {
-        this.assistant = assistant;
-        this.embeddingStore = embeddingStore;
+    public ChatService(ChatClient.Builder chatClientBuilder, VectorStore vectorStore) {
+        this.chatClient = chatClientBuilder.build();
+        this.vectorStore = vectorStore;
     }
 
-    public CompletableFuture<String> ask(String userPrompt) {
-        TokenStream tokenStream = this.assistant.chatWithModel(userPrompt);
-        CompletableFuture<String> future = new CompletableFuture<>();
-        tokenStream.onNext(System.out::print)
-                .onComplete(_ -> {
-                    System.out.println();
-                    future.complete(null);
-                })
-                .onError(Throwable::printStackTrace)
-                .start();
-        return future;
+    public String question(String message) {
+        Message systemMessage = getSystemMessage(message);
+        UserMessage userMessage = new UserMessage(message);
+        Prompt prompt = new Prompt(List.of(systemMessage, userMessage));
+
+        log.info("Asking AI model to reply to question.");
+        ChatResponse chatResponse = chatClient.prompt(prompt).call().chatResponse();
+        log.info("AI responded.");
+        return chatResponse.getResults().getFirst().getOutput().getContent();
     }
 
-    private static void modelResponse(StreamingChatLanguageModel model, String userPrompt) {
-        CompletableFuture<Response<AiMessage>> futureResponse = new CompletableFuture<>();
-        model.generate(userPrompt, new StreamingResponseHandler<>() {
-            @Override
-            public void onNext(String token) {
-                System.out.print(token);
-            }
-            @Override
-            public void onComplete(Response<AiMessage> response) {
-                futureResponse.complete(response);
-            }
-            @Override
-            public void onError(Throwable error) {
-                futureResponse.completeExceptionally(error);
-            }
-        });
-        futureResponse.join();
+    private Message getSystemMessage(String message) {
+        log.info("Retrieving relevant documents");
+        List<Document> similarDocuments = vectorStore.similaritySearch(message);
+        log.info(String.format("Found %s relevant documents.", similarDocuments.size()));
+        String documents = similarDocuments.stream().map(Document::getContent).collect(Collectors.joining("\n"));
+        SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(this.qaSystemPromptResource);
+        return systemPromptTemplate.createMessage(Map.of("documents", documents));
     }
-
-    private String retrieveData(String ticker){
-        EmbeddingModel embeddingModel = new AllMiniLmL6V2EmbeddingModel();
-        Embedding queryEmbedding = embeddingModel.embed("What is condition for my stock " + ticker + " today").content();
-        List<EmbeddingMatch<TextSegment>> relevant = embeddingStore.findRelevant(queryEmbedding, 1);
-        EmbeddingMatch<TextSegment> embeddingMatch = relevant.get(0);
-        return embeddingMatch.embedded().text();
-    }
-
-
 }

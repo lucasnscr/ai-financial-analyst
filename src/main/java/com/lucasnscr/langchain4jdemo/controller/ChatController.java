@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 @RestController
 public class ChatController {
 
@@ -17,8 +16,7 @@ public class ChatController {
     }
 
     @PostMapping("/question")
-    public ResponseEntity<String> getQuestion(@RequestBody String question){
-        String response = chatService.ask(question).join();
-        return ResponseEntity.ok().body(response);
+    public ResponseEntity<String> getQuestion(@RequestBody String message){
+        return ResponseEntity.ok().body(chatService.question(message));
     }
 }
