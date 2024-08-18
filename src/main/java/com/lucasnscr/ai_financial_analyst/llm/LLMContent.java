@@ -1,12 +1,10 @@
-package com.lucasnscr.langchain4jdemo.llm;
+package com.lucasnscr.ai_financial_analyst.llm;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 @Component

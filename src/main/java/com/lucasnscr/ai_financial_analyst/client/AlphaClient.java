@@ -1,10 +1,10 @@
-package com.lucasnscr.langchain4jdemo.client;
+package com.lucasnscr.ai_financial_analyst.client;
 
-import com.lucasnscr.langchain4jdemo.converter.CryptoConverter;
-import com.lucasnscr.langchain4jdemo.converter.StockConverter;
-import com.lucasnscr.langchain4jdemo.exception.AlphaClientException;
-import com.lucasnscr.langchain4jdemo.model.Crypto;
-import com.lucasnscr.langchain4jdemo.model.Stock;
+import com.lucasnscr.ai_financial_analyst.converter.CryptoConverter;
+import com.lucasnscr.ai_financial_analyst.converter.StockConverter;
+import com.lucasnscr.ai_financial_analyst.exception.AlphaClientException;
+import com.lucasnscr.ai_financial_analyst.model.Crypto;
+import com.lucasnscr.ai_financial_analyst.model.Stock;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

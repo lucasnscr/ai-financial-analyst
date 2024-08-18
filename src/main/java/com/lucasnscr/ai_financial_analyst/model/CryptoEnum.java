@@ -1,4 +1,4 @@
-package com.lucasnscr.langchain4jdemo.model;
+package com.lucasnscr.ai_financial_analyst.model;
 
 public enum CryptoEnum {
     BITCOIN("BTC"),

@@ -1,13 +1,12 @@
-package com.lucasnscr.langchain4jdemo.model;
+package com.lucasnscr.ai_financial_analyst.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-@Document(collection = "Crypto")
-public class Crypto {
-
+@Document(collection = "Stocks")
+public class Stock {
 
     @Id
     private String name;

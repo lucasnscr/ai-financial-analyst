@@ -1,4 +1,4 @@
-package com.lucasnscr.langchain4jdemo.config;
+package com.lucasnscr.ai_financial_analyst.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

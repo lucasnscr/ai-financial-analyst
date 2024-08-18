@@ -1,4 +1,4 @@
-package com.lucasnscr.langchain4jdemo.service;
+package com.lucasnscr.ai_financial_analyst.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,24 +1,22 @@
-package com.lucasnscr.langchain4jdemo.service;
+package com.lucasnscr.ai_financial_analyst.service;
 
-import com.lucasnscr.langchain4jdemo.client.AlphaClient;
-import com.lucasnscr.langchain4jdemo.model.Crypto;
-import com.lucasnscr.langchain4jdemo.model.CryptoEnum;
-import com.lucasnscr.langchain4jdemo.model.StockEnum;
-import com.lucasnscr.langchain4jdemo.repository.MongoCryptoRepository;
-import com.lucasnscr.langchain4jdemo.repository.MongoStockRepository;
-import com.lucasnscr.langchain4jdemo.model.Stock;
+import com.lucasnscr.ai_financial_analyst.client.AlphaClient;
+import com.lucasnscr.ai_financial_analyst.model.Crypto;
+import com.lucasnscr.ai_financial_analyst.model.CryptoEnum;
+import com.lucasnscr.ai_financial_analyst.model.Stock;
+import com.lucasnscr.ai_financial_analyst.model.StockEnum;
+import com.lucasnscr.ai_financial_analyst.repository.MongoCryptoRepository;
+import com.lucasnscr.ai_financial_analyst.repository.MongoStockRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ai.document.DocumentReader;
-import org.springframework.ai.reader.ExtractedTextFormatter;
-import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
-import org.springframework.ai.reader.pdf.config.PdfDocumentReaderConfig;
-import org.springframework.ai.transformer.splitter.TokenTextSplitter;
+import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -34,7 +32,7 @@ public class DataLoadingService {
     private final AlphaClient alphaClient;
 
     @Autowired
-    public DataLoadingService(VectorStore vectorStore,
+    public DataLoadingService(@Qualifier("vectorStoreDB") VectorStore vectorStore,
                               MongoStockRepository stockRepository,
                               MongoCryptoRepository cryptoRepository,
                               AlphaClient alphaClient) {
@@ -66,8 +64,7 @@ public class DataLoadingService {
             Stock stock = alphaClient.requestStock(stockEnum.getTicker());
             if (!ObjectUtils.isEmpty(stock)) {
                 stockRepository.save(stock);
-                DocumentReader documentReader = createDocumentReader(stock.getContentforLLM());
-                processDocumentReader(documentReader);
+                saveVectorDb(stock.getContentforLLM());
             }
         } catch (Exception e) {
             log.error("Error processing stock: " + stockEnum.getTicker(), e);
@@ -80,8 +77,7 @@ public class DataLoadingService {
             Crypto crypto = alphaClient.requestCrypto(cryptoEnum.getTicker());
             if (!ObjectUtils.isEmpty(crypto)) {
                 cryptoRepository.save(crypto);
-                DocumentReader documentReader = createDocumentReader(crypto.getContentforLLM());
-                processDocumentReader(documentReader);
+                saveVectorDb(crypto.getContentforLLM());
             }
         } catch (Exception e) {
             log.error("Error processing crypto: " + cryptoEnum.getTicker(), e);
@@ -89,32 +85,13 @@ public class DataLoadingService {
         }
     }
 
-    private void processDocumentReader(DocumentReader documentReader) {
-        try {
-            saveEmbedding(documentReader);
-        } catch (Exception e) {
-            log.error("Error processing document reader.", e);
-            throw new RuntimeException(e);
+    private void saveVectorDb(List<String> contentList) {
+        List<Document> documents = new ArrayList<>();
+        for (String content : contentList){
+            log.info("Creating embeddings and storing in vector store...  this will take a while.");
+            documents.add(new Document(content));
         }
-    }
-
-    private DocumentReader createDocumentReader(List<String> content) {
-//        String textLlm = formatStock(ticker, jsonObject);
-        return  new PagePdfDocumentReader(
-                String.valueOf(content),
-                PdfDocumentReaderConfig.builder()
-                        .withPageExtractedTextFormatter(ExtractedTextFormatter.builder()
-                                .withNumberOfBottomTextLinesToDelete(3)
-                                .withNumberOfTopPagesToSkipBeforeDelete(1)
-                                .build())
-                        .withPagesPerDocument(1)
-                        .build());
-    }
-
-    private void saveEmbedding(DocumentReader documentReader) {
-        var textSplitter = new TokenTextSplitter();
-        log.info("Parsing document, splitting, creating embeddings and storing in vector store...  this will take a while.");
-        this.vectorStore.accept(textSplitter.apply(documentReader.get()));
+        this.vectorStore.add(documents);
         log.info("Done parsing document, splitting, creating embeddings and storing in vector store");
     }
 }

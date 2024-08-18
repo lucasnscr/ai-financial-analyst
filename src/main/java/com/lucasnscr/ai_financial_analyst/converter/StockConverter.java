@@ -1,11 +1,12 @@
-package com.lucasnscr.langchain4jdemo.converter;
+package com.lucasnscr.ai_financial_analyst.converter;
 
-import com.lucasnscr.langchain4jdemo.llm.LLMContent;
-import com.lucasnscr.langchain4jdemo.model.Stock;
+import com.lucasnscr.ai_financial_analyst.llm.LLMContent;
+import com.lucasnscr.ai_financial_analyst.model.Stock;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -34,9 +35,12 @@ public class StockConverter {
 
     private List<String> buildContentListLLM(String name, JSONObject sentiments) {
         List<String> contentList = new ArrayList<>();
+        String llmContent = null;
         for (int i = 0; i < sentiments.length(); i++) {
             JSONArray feed = sentiments.getJSONArray("feed");
-            String llmContent = this.llmContent.prepareLLMContent(name, feed, i);
+            if (ObjectUtils.isEmpty(feed)){
+                llmContent = this.llmContent.prepareLLMContent(name, feed, i);
+            }
             contentList.add(llmContent);
         }
         return contentList;
