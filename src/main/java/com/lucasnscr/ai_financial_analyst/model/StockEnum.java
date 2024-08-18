@@ -1,6 +1,6 @@
-package com.lucasnscr.langchain4jdemo.model;
+package com.lucasnscr.ai_financial_analyst.model;
 
-public enum CompanyStock {
+public enum StockEnum {
     APPLE("AAPL"),
     MICROSOFT("MSFT"),
     AMAZON("AMZN"),
@@ -14,7 +14,7 @@ public enum CompanyStock {
 
     private final String ticker;
 
-    CompanyStock(String ticker) {
+    StockEnum(String ticker) {
         this.ticker = ticker;
     }
 
