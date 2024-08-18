@@ -67,6 +67,7 @@ The project uses several libraries and frameworks to ensure its functionality. B
    ```bash
    docker-compose up -d
    ```
+4. After start docker-compose you can access Mongo Express in this url: http://localhost:8081  
 5. Build the project using Maven:
    ```bash
    mvn clean install
