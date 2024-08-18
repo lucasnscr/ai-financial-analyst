@@ -1,8 +1,4 @@
-# ai-financial-analyst
-Java, Springboot, Spring IA and gpt-4o
-
-
-## Project: Personal Financial Analyst
+# Project: AI Personal Financial Analyst
 
 ### Project Description
 
