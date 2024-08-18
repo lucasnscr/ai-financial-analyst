@@ -38,7 +38,7 @@ public class StockConverter {
         String llmContent = null;
         for (int i = 0; i < sentiments.length(); i++) {
             JSONArray feed = sentiments.getJSONArray("feed");
-            if (ObjectUtils.isEmpty(feed)){
+            if (!ObjectUtils.isEmpty(feed)){
                 llmContent = this.llmContent.prepareLLMContent(name, feed, i);
             }
             contentList.add(llmContent);
