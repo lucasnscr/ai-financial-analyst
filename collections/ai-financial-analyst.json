@@ -1,0 +1,50 @@
+{
+  "info": {
+    "_postman_id": "7677ea95-57cb-4297-bf5b-fe8b2abe1510",
+    "name": "SpringIA",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "2728710"
+  },
+  "item": [
+    {
+      "name": "load-data",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/data/load",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "data",
+            "load"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "question",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/data/load",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "data",
+            "load"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
