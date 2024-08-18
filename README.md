@@ -63,11 +63,15 @@ The project uses several libraries and frameworks to ensure its functionality. B
 
 1. Clone the repository.
 2. Configure the properties in the `application.properties` file to point to your MongoDB and PostgreSQL instances.
-3. Build the project using Maven:
+3. Run docker compose to start local PGVector and MongoDB:
+   ```bash
+   docker-compose up -d
+   ```
+5. Build the project using Maven:
    ```bash
    mvn clean install
    ```
-4. Run the project:
+6. Run the project:
    ```bash
    mvn spring-boot:run
    ```
