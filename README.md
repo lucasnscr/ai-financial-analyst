@@ -53,10 +53,11 @@ The project uses several libraries and frameworks to ensure its functionality. B
 
 #### Prerequisites
 
-1. **Java 11+**: The project uses features of Java 11, so ensure you have this version or higher installed.
+1. **Java 22**: The project uses features of Java 22, so ensure you have this version or higher installed.
 2. **MongoDB**: Required to store financial data. Must be configured and running.
 3. **PostgreSQL with PGVector**: Must have the PGVector plugin installed and configured in PostgreSQL.
-4. **OpenAI API Key**: Required to access the GPT-4 model. Configure your API key in the application properties.
+4. **OpenAI API Key**: Required to access the GPT-4o model. Configure your API key in the application properties.
+5. **Alpha API Key**: Required to access the Financial Stock Market API, providing developers with access to a diverse range of financial data.
 
 #### Execution Steps
 
