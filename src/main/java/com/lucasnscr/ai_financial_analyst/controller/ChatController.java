@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -20,7 +21,7 @@ public class ChatController {
     }
 
     @PostMapping("/question")
-    public ResponseEntity<String> getQuestion(@RequestBody String message){
-        return ResponseEntity.ok().body(chatService.question(message));
+    public Flux<String> getQuestion(@RequestBody String message){
+        return chatService.question(message);
     }
 }
