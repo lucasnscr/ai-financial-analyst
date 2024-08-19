@@ -13,12 +13,16 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -41,11 +45,25 @@ public class DataLoadingService {
         this.cryptoRepository = cryptoRepository;
         this.alphaClient = alphaClient;
     }
-//    @Scheduled(cron = "0 0 18 * * ?")
+
+    // This method could be scheduled using @Scheduled if needed.
     public void loadData() {
         log.info("Starting DataLoadingService.");
-        loadEntities(StockEnum.values(), this::processStock);
-        loadEntities(CryptoEnum.values(), this::processCrypto);
+        processEntities(stockRepository, StockEnum.values(), this::processStock);
+        processEntities(cryptoRepository, CryptoEnum.values(), this::processCrypto);
+        log.info("DataLoadingService completed.");
+    }
+
+    private <T, E extends Enum<E>> void processEntities(MongoRepository<T, String> repository, E[] enumValues, Consumer<E> processor) {
+        List<T> entityList = repository.findAll();
+        if (CollectionUtils.isEmpty(entityList)) {
+            loadEntities(enumValues, processor);
+        } else {
+            entityList.stream()
+                    .map(this::getContentForLLM)
+                    .filter(content -> !CollectionUtils.isEmpty(content))
+                    .forEach(this::saveVectorDb);
+        }
     }
 
     private <T extends Enum<T>> void loadEntities(T[] enumValues, Consumer<T> processor) {
@@ -54,7 +72,6 @@ public class DataLoadingService {
                 processor.accept(enumValue);
             } catch (Exception e) {
                 log.error("Error processing entity: {}", enumValue, e);
-                throw new RuntimeException(e);
             }
         }
     }
@@ -67,8 +84,7 @@ public class DataLoadingService {
                 saveVectorDb(stock.getContentforLLM());
             }
         } catch (Exception e) {
-            log.error("Error processing stock: " + stockEnum.getTicker(), e);
-            throw new RuntimeException(e);
+            log.error("Error processing stock: {}", stockEnum.getTicker(), e);
         }
     }
 
@@ -80,18 +96,30 @@ public class DataLoadingService {
                 saveVectorDb(crypto.getContentforLLM());
             }
         } catch (Exception e) {
-            log.error("Error processing crypto: " + cryptoEnum.getTicker(), e);
-            throw new RuntimeException(e);
+            log.error("Error processing crypto: {}", cryptoEnum.getTicker(), e);
         }
     }
 
-    private void saveVectorDb(List<String> contentList) {
-        List<Document> documents = new ArrayList<>();
-        for (String content : contentList){
-            log.info("Creating embeddings and storing in vector store...  this will take a while.");
-            documents.add(new Document(content));
+    private List<String> getContentForLLM(Object entity) {
+        if (entity instanceof Stock) {
+            return ((Stock) entity).getContentforLLM();
+        } else if (entity instanceof Crypto) {
+            return ((Crypto) entity).getContentforLLM();
         }
-        this.vectorStore.add(documents);
-        log.info("Done parsing document, splitting, creating embeddings and storing in vector store");
+        return Collections.emptyList();
+    }
+
+    private void saveVectorDb(List<String> contentList) {
+        if (CollectionUtils.isEmpty(contentList)) {
+            return;
+        }
+
+        List<Document> documents = contentList.stream()
+                .map(Document::new)
+                .collect(Collectors.toList());
+
+        log.info("Creating embeddings and storing in vector store...");
+        vectorStore.add(documents);
+        log.info("Done storing embeddings in vector store.");
     }
 }

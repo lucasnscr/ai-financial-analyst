@@ -36,8 +36,8 @@ public class StockConverter {
     private List<String> buildContentListLLM(String name, JSONObject sentiments) {
         List<String> contentList = new ArrayList<>();
         String llmContent = null;
-        for (int i = 0; i < sentiments.length(); i++) {
-            JSONArray feed = sentiments.getJSONArray("feed");
+        JSONArray feed = sentiments.getJSONArray("feed");
+        for (int i = 0; i < feed.length(); i++) {
             if (!ObjectUtils.isEmpty(feed)){
                 llmContent = this.llmContent.prepareLLMContent(name, feed, i);
             }

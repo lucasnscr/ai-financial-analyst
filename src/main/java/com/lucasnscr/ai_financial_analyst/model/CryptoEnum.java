@@ -7,16 +7,10 @@ public enum CryptoEnum {
     BINANCE_COIN("BNB"),
     RIPPLE("XRP"),
     USD_COIN("USDC"),
-    CARDANO("ADA"),
     DOGECOIN("DOGE"),
     SOLANA("SOL"),
-    TRON("TRX"),
     POLYGON("MATIC"),
-    LITECOIN("LTC"),
-    POLKADOT("DOT"),
-    SHIBA_INU("SHIB"),
-    AVALANCHE("AVAX");
-
+    LITECOIN("LTC");
 
     private final String ticker;
 
