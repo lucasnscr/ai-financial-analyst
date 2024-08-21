@@ -24,7 +24,6 @@ public class LLMContent {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss");
         LocalDateTime dateTime = LocalDateTime.parse(timePublishedStr, formatter);
 
-
         return String.format("""
                         Article Information about: %s
                         Title: %s
@@ -35,6 +34,4 @@ public class LLMContent {
                         Overall Sentiment Label: %s""",
                 name, title, url, dateTime, summary, overallSentimentScore, overallSentimentLabel);
     }
-
-
 }

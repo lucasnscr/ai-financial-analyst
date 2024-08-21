@@ -55,13 +55,10 @@ public class ChatService {
     private Message createSystemMessage(String userMessageText) {
         logger.info("Fetching relevant documents for message: {}", userMessageText);
         List<Document> relevantDocuments = vectorStore.similaritySearch(userMessageText);
-
         logger.info("Found {} relevant documents.", relevantDocuments.size());
-
         String documentsContent = relevantDocuments.stream()
                 .map(Document::getContent)
                 .collect(Collectors.joining("\n"));
-
         return new SystemPromptTemplate(qaSystemPromptResource)
                 .createMessage(Map.of("documents", documentsContent));
     }

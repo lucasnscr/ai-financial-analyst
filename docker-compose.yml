@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   mongo:
     image: mongo
@@ -6,7 +8,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
     networks:
-      - mongo-compose-network
+      - app-network
     ports:
       - '27017:27017'
     volumes:
@@ -18,7 +20,7 @@ services:
     depends_on:
       - mongo
     networks:
-      - mongo-compose-network
+      - app-network
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
@@ -26,8 +28,6 @@ services:
       ME_CONFIG_BASICAUTH: false
     ports:
       - '8081:8081'
-    volumes:
-      - ./data:/data/db
 
   postgres:
     image: ankane/pgvector:v0.5.1
@@ -52,10 +52,117 @@ services:
       start_period: 30s
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  postgres-keycloak:
+    image: postgres:14
+    container_name: keycloak_postgres
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak_password
+    volumes:
+      - postgres_keycloak_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.3
+    container_name: my_keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin_password
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres-keycloak
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak_password
+    command: start-dev
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres-keycloak
+    networks:
+      - app-network
+
+  app:
+    image: lucasnscr/ai-financial-analyst:latest
+    environment:
+      server.port: 9090
+
+      spring.application.name: ai-financial-analyst
+
+      # PGVECTOR Connections
+      spring.datasource.url: jdbc:postgresql://host.docker.internal:5433/vector_db
+      spring.datasource.username: postgres
+      spring.datasource.password: admin
+      spring.datasource.driver-class-name: org.postgresql.Driver
+
+      # PGVECTOR Setup
+      spring.ai.vectorstore.pgvector.index-type: HNSW
+      spring.ai.vectorstore.pgvector.distance-type: COSINE_DISTANCE
+      spring.ai.vectorstore.pgvector.dimensions: 1536
+      spring.ai.vectorstore.pgvector.remove-existing-vector-store-table: false
+      spring.ai.vectorstore.pgvector.initialize-schema: true
+
+      # MongoDB Connections
+      spring.data.mongodb.host: host.docker.internal
+      spring.data.mongodb.port: 27017
+      spring.data.mongodb.authentication-database: admin
+      spring.data.mongodb.username: root
+      spring.data.mongodb.password: example
+      spring.data.mongodb.database: ai-financial-analyst
+
+      spring.threads.virtual.enabled: true
+
+      # Alpha Client
+      Alpha.host: https://www.alphavantage.co
+      Alpha.api-key: LC178HYPP8FQAK4T
+
+      # LLM Open Ai Setup
+      spring.ai.openai.api-key: sk-o_laDSDf6mzghWzNJbKEDbnbzn8_bUJEyijj0TOaTjT3BlbkFJd3azAAS3WhD6_UFkX5TO529LIF1UPyYTjNpOwLB18A
+      spring.ai.openai.chat.options.model: gpt-4o
+      spring.ai.openai.embedding.enabled: true
+      spring.ai.openai.chat.options.temperature: 0.3
+      spring.ai.openai.embedding.base-url: https://api.openai.com
+      spring.ai.openai.embedding.api-key: sk-o_laDSDf6mzghWzNJbKEDbnbzn8_bUJEyijj0TOaTjT3BlbkFJd3azAAS3WhD6_UFkX5TO529LIF1UPyYTjNpOwLB18A
+      spring.ai.openai.embedding.options.model: text-embedding-ada-002
+
+      # Security Configuration
+      spring.security.oauth2.resourceserver.jwt.issuer-uri: http://host.docker.internal:8080/realms/ai-financial-analyst
+      spring.security.oauth2.resourceserver.jwt.jwk-set-uri: http://host.docker.internal:8080/realms/ai-financial-analyst/protocol/openid-connect/certs
+
+      # JWT Configuration
+      jwt.auth.converter.resource-id: super-client
+      jwt.auth.converter.principal-attribute: principal_username
+
+      #swagger
+      springdoc.swagger-ui.path: /doc
+
+      spring.jpa.open-in-view: false
+    depends_on:
+      - mongo
+      - keycloak
+      - postgres
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./src/main/resources/application.properties:/app/config/application.properties
+    command: [ "java", "-jar", "ai-financial-analyst-0.0.1-SNAPSHOT.jar", "--spring.config.location=/app/config/application.properties" ]
+    networks:
+      - app-network
+#      - mongo-compose-network
+#      - keycloak_network
 
 volumes:
   postgres_data:
+  postgres_keycloak_data:
 
 networks:
-  mongo-compose-network:
+#  mongo-compose-network:
+#    driver: bridge
+#  keycloak_network:
+#    driver: bridge
+  app-network:
     driver: bridge

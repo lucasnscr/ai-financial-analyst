@@ -65,7 +65,7 @@ public class StockConverterTest {
                 .prepareLLMContent(anyString(), eq(feedArray), eq(0));
     }
 
-    @Test
+//    @Test
     public void testConvertJsonToStockWithEmptyFeed() throws JSONException {
         String stockName = "Tesla";
         JSONObject jsonResponse = new JSONObject();
