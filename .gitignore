@@ -88,3 +88,10 @@ target/surefire-reports/TEST-llm.LLMContentTest.xml
 target/test-classes/converter/CryptoConverterTest.class
 target/test-classes/converter/StockConverterTest.class
 target/test-classes/llm/LLMContentTest.class
+data/journal/WiredTigerLog.0000000021
+data/diagnostic.data/metrics.2024-08-21T14-36-20Z-00000
+data/diagnostic.data/metrics.2024-08-21T14-35-43Z-00000
+data/diagnostic.data/metrics.2024-08-21T14-32-58Z-00000
+data/diagnostic.data/metrics.2024-08-21T14-26-11Z-00000
+data/diagnostic.data/metrics.2024-08-21T13-33-20Z-00000
+data/diagnostic.data/metrics.2024-08-21T13-18-17Z-00000

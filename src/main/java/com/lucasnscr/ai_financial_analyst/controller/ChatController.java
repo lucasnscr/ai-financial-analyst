@@ -34,7 +34,6 @@ public class ChatController {
         }
 
         return chatService.processUserQuestion(message)
-                .doOnNext(response -> logger.info("Processed response: {}", response))
                 .doOnError(error -> logger.error("Error processing question: {}", error.getMessage()));
     }
 
