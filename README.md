@@ -77,20 +77,11 @@ The project uses several libraries and frameworks to ensure its functionality. B
    mvn spring-boot:run
    ```
 
-#### Testing
-
-The project includes unit tests for the main components, using JUnit and Mockito. To run the tests:
-
-```bash
-mvn test
-```
-
-### Application Setup
-
 **Config Keycloack**
 https://medium.com/javarevisited/keycloak-integration-with-spring-security-6-37999f43ec85
 
 **Execute application local**
+
 ```
 mvn spring-boot:run
 ```
