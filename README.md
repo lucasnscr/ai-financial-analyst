@@ -85,6 +85,52 @@ The project includes unit tests for the main components, using JUnit and Mockito
 mvn test
 ```
 
+### Application Setup
+
+**Config Keycloack**
+https://medium.com/javarevisited/keycloak-integration-with-spring-security-6-37999f43ec85
+
+**Execute application local**
+```
+mvn spring-boot:run
+```
+### Request Curls
+
+**Generate token**
+
+```
+curl --location 'http://localhost:8080/realms/ai-financial-analyst/protocol/openid-connect/token' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'grant_type=password' \
+--data-urlencode 'client_id=super-client' \
+--data-urlencode 'username=user1' \
+--data-urlencode 'password=123456'
+```
+
+**Load Data**
+
+Load Data in Vector DB and MongoDB. Just need run when you want update database.
+If you use Postman, you will need get access token on generate token response and inject this token like Bearer Token 
+
+```
+curl --location 'http://localhost:9090/load' \
+--header 'Authorization: ••••••'
+```
+
+**Chat**
+
+Request to talk with chatbot, you will need do the same step of security. Inject token on request.
+
+```
+curl --location 'http://localhost:9090/chat/question' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ3OGV1eTNJRUxJZTZ5c2ZvYnJKaGF6NF9lRndVWXNCSVpDcDVPVUs5MkFnIn0.eyJleHAiOjE3MjQyNTEzMDAsImlhdCI6MTcyNDI1MTAwMCwianRpIjoiMzAzNzBiM2MtY2RiZi00NTA2LWE0ZjQtM2RmNGZkOGM5YjQ5IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9haS1maW5hbmNpYWwtYW5hbHlzdCIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiJlMDRlN2Y0OS05NjZhLTQzZmUtYjc5ZC0xNTFkYjBhMzhiYmQiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzdXBlci1jbGllbnQiLCJzZXNzaW9uX3N0YXRlIjoiMThjODViYjYtZDc2OC00M2I0LTljYjUtOWYyNzFiN2FjYWYxIiwiYWNyIjoiMSIsImFsbG93ZWQtb3JpZ2lucyI6WyIvKiJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiYXBwX3VzZXIiLCJvZmZsaW5lX2FjY2VzcyIsImRlZmF1bHQtcm9sZXMtYWktZmluYW5jaWFsLWFuYWx5c3QiLCJ1bWFfYXV0aG9yaXphdGlvbiJdfSwicmVzb3VyY2VfYWNjZXNzIjp7InN1cGVyLWNsaWVudCI6eyJyb2xlcyI6WyJ1c2VyIl19LCJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6InByb2ZpbGUgZW1haWwiLCJzaWQiOiIxOGM4NWJiNi1kNzY4LTQzYjQtOWNiNS05ZjI3MWI3YWNhZjEiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibmFtZSI6IlVzZXIgMiIsInByZWZlcnJlZF91c2VybmFtZSI6InVzZXIyIiwiZ2l2ZW5fbmFtZSI6IlVzZXIiLCJmYW1pbHlfbmFtZSI6IjIiLCJlbWFpbCI6Imx1Y2FzLm5hc2NpbWVudG8uc2NyQGhvdG1haWwuY29tIn0.X0hVXCXYgWSUkPlQmZo5Jam1QyJ-AD96BO9g7z7bexHOOflB2i6HLKZOyglM-9kIkdMJeABKEo-a3tH14TM8Air4W8WBYiaAT1ar2JmaODtBN1Q5KGRfdWV-Z7-WcHAQ0R4SB62BviocmahS6bwl3eOa9U5EYQtIWnBLVEIxMQRzCTwPgBhPMeUD1GLcMvRy53OXEZqgL5TC8s6Pc5c80lho__KOsh9KtalbLHLvZA-HzN3ZPJt9SUpogUPl5_W8c4qd-5eJBllHfTLbD_PMHADoutI-pJ1P4ZH0Weo1yYDiPQW8pShbUoLvCUgDeXCslRxIji9TZgKcCxWisP22MQ' \
+--data '{
+    "question": " What Are All 10 Stocks Warren Buffett Is Selling? Traduza para portugues a resposta"
+}'
+```
+
+
 ### Future Enhancements
 
 1. **Improvement of LLM Integration**: Explore enhancements in preparing the data for the LLM, including adding more contextual data to improve the generated responses.
