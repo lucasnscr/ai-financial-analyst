@@ -1,10 +1,12 @@
 package com.lucasnscr.ai_financial_analyst.client;
 
 import com.lucasnscr.ai_financial_analyst.converter.CryptoConverter;
+import com.lucasnscr.ai_financial_analyst.converter.StockClassificationConverter;
 import com.lucasnscr.ai_financial_analyst.converter.StockConverter;
 import com.lucasnscr.ai_financial_analyst.exception.AlphaClientException;
 import com.lucasnscr.ai_financial_analyst.model.Crypto;
 import com.lucasnscr.ai_financial_analyst.model.Stock;
+import com.lucasnscr.ai_financial_analyst.model.StockClassification;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,28 +29,31 @@ public class AlphaClient {
     private final WebClient webClient;
     private final StockConverter stockConverter;
     private final CryptoConverter cryptoConverter;
+    private final StockClassificationConverter stockClassificationConverter;
     private final String apikey;
 
     @Autowired
     public AlphaClient(WebClient webClient,
                        StockConverter stockConverter,
                        CryptoConverter cryptoConverter,
+                       StockClassificationConverter stockClassificationConverter,
                        @Value("${Alpha.api-key}") String apikey) {
         this.webClient = webClient;
         this.stockConverter = stockConverter;
         this.cryptoConverter = cryptoConverter;
+        this.stockClassificationConverter = stockClassificationConverter;
         this.apikey = apikey;
     }
 
     public Stock requestStock(String ticker) {
-        return requestData(ticker, stockConverter::convertJsonToStock);
+        return requestNewsAndSentiments(ticker, stockConverter::convertJsonToStock);
     }
 
     public Crypto requestCrypto(String ticker) {
-        return requestData(ticker, cryptoConverter::convertJsonToCrypto);
+        return requestNewsAndSentiments(ticker, cryptoConverter::convertJsonToCrypto);
     }
 
-    private <T> T requestData(String ticker, BiFunction<String, JSONObject, T> converter) {
+    private <T> T requestNewsAndSentiments(String ticker, BiFunction<String, JSONObject, T> converter) {
         Map<String, Object> financialJson = null;
         try {
             log.info("Request AlphaClient at {}", Instant.now());
@@ -71,10 +76,32 @@ public class AlphaClient {
             log.warn("Received empty response for ticker: {}", ticker);
             return null;
         }
-
         return converter.apply(ticker, new JSONObject(financialJson));
     }
 
+    public StockClassification requestGainersLosers() {
+        Map<String, Object> gainersLosers = null;
+        try {
+            log.info("Request AlphaClient at {}", Instant.now());
+            gainersLosers = this.webClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/query")
+                            .queryParam("function", "TOP_GAINERS_LOSERS")
+                            .queryParam("apikey", apikey)
+                            .build())
+                    .retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
+                    })
+                    .block();
+        } catch (Exception e) {
+            log.error("Error fetching data from Alpha API", e);
+            throw new AlphaClientException("Error fetching data from Alpha API", e);
+        }
 
-
+        if (ObjectUtils.isEmpty(gainersLosers)) {
+            log.warn("Received empty response for Gainers and Losers");
+            return null;
+        }
+        return stockClassificationConverter.convertJsonToStockClassification(new JSONObject(gainersLosers));
+    }
 }

@@ -23,7 +23,6 @@ public class CryptoConverter {
         this.llmContent = llmContent;
     }
 
-
     public Crypto convertJsonToCrypto(String name, JSONObject jsonResponse) {
         Crypto crypto = new Crypto();
         crypto.setName(name);
@@ -40,7 +39,7 @@ public class CryptoConverter {
         JSONArray feed = sentiments.getJSONArray("feed");
         for (int i = 0; i < feed.length(); i++) {
             if (!ObjectUtils.isEmpty(feed)){
-                llmContent = this.llmContent.prepareLLMContent(name, feed, i);
+                llmContent = this.llmContent.prepareNewsLLMContent(name, feed, i);
             }
             contentList.add(llmContent);
         }

@@ -1,11 +1,9 @@
 package com.lucasnscr.ai_financial_analyst.service;
 
 import com.lucasnscr.ai_financial_analyst.client.AlphaClient;
-import com.lucasnscr.ai_financial_analyst.model.Crypto;
-import com.lucasnscr.ai_financial_analyst.model.CryptoEnum;
-import com.lucasnscr.ai_financial_analyst.model.Stock;
-import com.lucasnscr.ai_financial_analyst.model.StockEnum;
+import com.lucasnscr.ai_financial_analyst.model.*;
 import com.lucasnscr.ai_financial_analyst.repository.MongoCryptoRepository;
+import com.lucasnscr.ai_financial_analyst.repository.MongoStockClassificationRepository;
 import com.lucasnscr.ai_financial_analyst.repository.MongoStockRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,22 +30,30 @@ public class DataLoadingService {
     private final VectorStore vectorStore;
     private final MongoStockRepository stockRepository;
     private final MongoCryptoRepository cryptoRepository;
+    private final MongoStockClassificationRepository stockClassificationRepository;
     private final AlphaClient alphaClient;
 
     @Autowired
     public DataLoadingService(@Qualifier("vectorStoreDB") VectorStore vectorStore,
                               MongoStockRepository stockRepository,
                               MongoCryptoRepository cryptoRepository,
+                              MongoStockClassificationRepository stockClassificationRepository,
                               AlphaClient alphaClient) {
         this.vectorStore = vectorStore;
         this.stockRepository = stockRepository;
         this.cryptoRepository = cryptoRepository;
+        this.stockClassificationRepository = stockClassificationRepository;
         this.alphaClient = alphaClient;
     }
 
     // This method could be scheduled using @Scheduled if needed.
     public void loadData() {
         log.info("Starting DataLoadingService.");
+        StockClassification stockClassification = alphaClient.requestGainersLosers();
+        if (!ObjectUtils.isEmpty(stockClassification)){
+            stockClassificationRepository.save(stockClassification);
+            saveVectorDb(stockClassification.getClassifications());
+        }
         processEntities(stockRepository, StockEnum.values(), this::processStock);
         processEntities(cryptoRepository, CryptoEnum.values(), this::processCrypto);
         log.info("DataLoadingService completed.");
