@@ -4,7 +4,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -44,54 +43,52 @@ public class LLMContent {
         String ticker = jsonObject.getString("ticker");
         Double price = jsonObject.getDouble("price");
         Double changemount = jsonObject.getDouble("change_amount");
-        Double changePercentage = jsonObject.getDouble("change_percentage");
+        String changePercentage = jsonObject.getString("change_percentage");
         Double volume = jsonObject.getDouble("volume");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss");
-        LocalDateTime dateTime = LocalDateTime.parse(Instant.now().toString(), formatter);
         String classification = "";
         if(TOP_GAINERS.equals(type)){
-            classification =  topGainers(ticker, price, changemount, changePercentage, volume, dateTime);
+            classification =  topGainers(ticker, price, changemount, changePercentage, volume);
         } else if(TOP_LOSERS.equals(type)){
-            classification =  topLosers(ticker, price, changemount, changePercentage, volume, dateTime);
+            classification =  topLosers(ticker, price, changemount, changePercentage, volume);
         } else if(MOST_ACTIVELY_TRADED.equals(type)){
-            classification =  MostActivelyTraded(ticker, price, changemount, changePercentage, volume, dateTime);
+            classification =  MostActivelyTraded(ticker, price, changemount, changePercentage, volume);
         }
         return classification;
     }
 
-    private static String topGainers(String ticker, Double price, Double changemount, Double changePercentage, Double volume, LocalDateTime dateTime) {
+    private static String topGainers(String ticker, Double price, Double changemount, String changePercentage, Double volume) {
         return String.format("""
-                        Top gainers US tickers
+                        Top Gainers US tickers
                         Ticker: %s
                         Price: %s
                         Change Amount: %s
-                        change_percentage: %s
-                        Overall Sentiment Score: %.2f
-                        Overall Sentiment Label: %s""",
-                ticker, price, changemount, changePercentage, volume, dateTime);
+                        Change Percentage: %s
+                        Volume: %.2f
+                        """,
+                ticker, price, changemount, changePercentage, volume);
     }
 
-    private static String topLosers(String ticker, Double price, Double changemount, Double changePercentage, Double volume, LocalDateTime dateTime) {
+    private static String topLosers(String ticker, Double price, Double changemount, String changePercentage, Double volume) {
         return String.format("""
-                        Top losers US tickers
+                        Top Losers US tickers
                         Ticker: %s
                         Price: %s
                         Change Amount: %s
-                        change_percentage: %s
-                        Overall Sentiment Score: %.2f
-                        Overall Sentiment Label: %s""",
-                ticker, price, changemount, changePercentage, volume, dateTime);
+                        Change Percentage: %s
+                        Volume: %.2f
+                        """,
+                ticker, price, changemount, changePercentage, volume);
     }
 
-    private static String MostActivelyTraded(String ticker, Double price, Double changemount, Double changePercentage, Double volume, LocalDateTime dateTime) {
+    private static String MostActivelyTraded(String ticker, Double price, Double changemount, String changePercentage, Double volume) {
         return String.format("""
-                        Most actively traded US tickers
+                        Most Actively Traded US tickers
                         Ticker: %s
                         Price: %s
                         Change Amount: %s
-                        change_percentage: %s
-                        Overall Sentiment Score: %.2f
-                        Overall Sentiment Label: %s""",
-                ticker, price, changemount, changePercentage, volume, dateTime);
+                        Change Percentage: %s
+                        Volume: %.2f
+                        """,
+                ticker, price, changemount, changePercentage, volume);
     }
 }

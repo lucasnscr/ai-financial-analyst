@@ -54,8 +54,8 @@ public class DataLoadingService {
             stockClassificationRepository.save(stockClassification);
             saveVectorDb(stockClassification.getClassifications());
         }
-        processEntities(stockRepository, StockEnum.values(), this::processStock);
-        processEntities(cryptoRepository, CryptoEnum.values(), this::processCrypto);
+//        processEntities(stockRepository, StockEnum.values(), this::processStock);
+//        processEntities(cryptoRepository, CryptoEnum.values(), this::processCrypto);
         log.info("DataLoadingService completed.");
     }
 

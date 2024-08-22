@@ -26,7 +26,7 @@ public class StockClassificationConverter {
     public StockClassification convertJsonToStockClassification(JSONObject jsonResponse) {
         StockClassification stockClassification = new StockClassification();
         if (!ObjectUtils.isEmpty(jsonResponse)){
-            stockClassification.setDate(jsonResponse.getString(""));
+            stockClassification.setDate(jsonResponse.getString("last_updated"));
             stockClassification.setClassifications(buildStockClassification(jsonResponse));
         }
         return stockClassification;
