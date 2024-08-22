@@ -46,62 +46,54 @@ public class AlphaClient {
     }
 
     public Stock requestStock(String ticker) {
-        return requestNewsAndSentiments(ticker, stockConverter::convertJsonToStock);
+        return requestDataFromApi(
+                ticker,
+                "NEWS_SENTIMENT",
+                stockConverter::convertJsonToStock
+        );
     }
 
     public Crypto requestCrypto(String ticker) {
-        return requestNewsAndSentiments(ticker, cryptoConverter::convertJsonToCrypto);
+        return requestDataFromApi(
+                ticker,
+                "NEWS_SENTIMENT",
+                cryptoConverter::convertJsonToCrypto
+        );
     }
 
-    private <T> T requestNewsAndSentiments(String ticker, BiFunction<String, JSONObject, T> converter) {
-        Map<String, Object> financialJson = null;
+    public StockClassification requestGainersLosers() {
+        return requestDataFromApi(
+                null,
+                "TOP_GAINERS_LOSERS",
+                (ignored, jsonResponse) -> stockClassificationConverter.convertJsonToStockClassification(jsonResponse)
+        );
+    }
+
+    private <T> T requestDataFromApi(String ticker, String function, BiFunction<String, JSONObject, T> converter) {
+        Map<String, Object> responseJson = performApiRequest(ticker, function);
+        if (ObjectUtils.isEmpty(responseJson)) {
+            log.warn("Received empty response for ticker: {}", ticker);
+            return null;
+        }
+        return converter.apply(ticker, new JSONObject(responseJson));
+    }
+
+    private Map<String, Object> performApiRequest(String ticker, String function) {
         try {
-            log.info("Request AlphaClient at {}", Instant.now());
-            financialJson = this.webClient.get()
+            log.info("Requesting data from Alpha API at {}", Instant.now());
+            return this.webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/query")
-                            .queryParam("function", "NEWS_SENTIMENT")
+                            .queryParam("function", function)
                             .queryParam("tickers", ticker)
                             .queryParam("apikey", apikey)
                             .build())
                     .retrieve()
                     .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
                     .block();
-            log.info("Retrieve AlphaClient at {}", Instant.now());
         } catch (Exception e) {
+            log.error("Error fetching data from Alpha API for ticker: {}", ticker, e);
             throw new AlphaClientException("Error fetching data from Alpha API", e);
         }
-
-        if (ObjectUtils.isEmpty(financialJson)) {
-            log.warn("Received empty response for ticker: {}", ticker);
-            return null;
-        }
-        return converter.apply(ticker, new JSONObject(financialJson));
-    }
-
-    public StockClassification requestGainersLosers() {
-        Map<String, Object> gainersLosers = null;
-        try {
-            log.info("Request AlphaClient at {}", Instant.now());
-            gainersLosers = this.webClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("/query")
-                            .queryParam("function", "TOP_GAINERS_LOSERS")
-                            .queryParam("apikey", apikey)
-                            .build())
-                    .retrieve()
-                    .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
-                    })
-                    .block();
-        } catch (Exception e) {
-            log.error("Error fetching data from Alpha API", e);
-            throw new AlphaClientException("Error fetching data from Alpha API", e);
-        }
-
-        if (ObjectUtils.isEmpty(gainersLosers)) {
-            log.warn("Received empty response for Gainers and Losers");
-            return null;
-        }
-        return stockClassificationConverter.convertJsonToStockClassification(new JSONObject(gainersLosers));
     }
 }
