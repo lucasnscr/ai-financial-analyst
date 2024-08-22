@@ -9,6 +9,7 @@ import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Component
 public class StockClassificationConverter {
@@ -24,31 +25,45 @@ public class StockClassificationConverter {
     }
 
     public StockClassification convertJsonToStockClassification(JSONObject jsonResponse) {
-        StockClassification stockClassification = new StockClassification();
-        if (!ObjectUtils.isEmpty(jsonResponse)){
-            stockClassification.setDate(jsonResponse.getString("last_updated"));
-            stockClassification.setClassifications(buildStockClassification(jsonResponse));
+        if (ObjectUtils.isEmpty(jsonResponse)) {
+            return new StockClassification();
         }
-        return stockClassification;
+
+        return new StockClassification(
+                jsonResponse.getString("last_updated"),
+                buildStockClassification(jsonResponse)
+        );
     }
 
     private List<String> buildStockClassification(JSONObject classification) {
         List<String> classifications = new ArrayList<>();
-        JSONArray topGainers = classification.getJSONArray("top_gainers");
-        JSONArray topLosers = classification.getJSONArray("top_losers");
-        JSONArray mostActivelyTraded = classification.getJSONArray("most_actively_traded");
-        buildStringClassification(classifications, TOP_GAINERS, topGainers);
-        buildStringClassification(classifications, TOP_LOSERS, topLosers);
-        buildStringClassification(classifications, MOST_ACTIVELY_TRADED, mostActivelyTraded);
+
+        Stream.of(
+                new ClassificationData(TOP_GAINERS, classification.optJSONArray(TOP_GAINERS)),
+                new ClassificationData(TOP_LOSERS, classification.optJSONArray(TOP_LOSERS)),
+                new ClassificationData(MOST_ACTIVELY_TRADED, classification.optJSONArray(MOST_ACTIVELY_TRADED))
+        ).forEach(data -> addClassificationData(classifications, data));
+
         return classifications;
     }
 
-    private void buildStringClassification(List<String> classifications, String type, JSONArray jsonArray) {
-        for (int i = 0; i < jsonArray.length(); i++) {
-            if (!ObjectUtils.isEmpty(jsonArray)){
-                classifications.add(llmContent.prepareClassification(type, jsonArray, i));
-            }
+    private void addClassificationData(List<String> classifications, ClassificationData data) {
+        if (ObjectUtils.isEmpty(data.jsonArray)) {
+            return;
+        }
+
+        for (int i = 0; i < data.jsonArray.length(); i++) {
+            classifications.add(llmContent.prepareClassification(data.type, data.jsonArray, i));
         }
     }
 
+    private static class ClassificationData {
+        private final String type;
+        private final JSONArray jsonArray;
+
+        public ClassificationData(String type, JSONArray jsonArray) {
+            this.type = type;
+            this.jsonArray = jsonArray;
+        }
+    }
 }

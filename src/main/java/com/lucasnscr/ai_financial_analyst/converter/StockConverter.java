@@ -4,44 +4,44 @@ import com.lucasnscr.ai_financial_analyst.llm.LLMContent;
 import com.lucasnscr.ai_financial_analyst.model.Stock;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Component
 public class StockConverter {
-    private final LLMContent llmContent;
 
-    @Autowired
+    private final LLMContent llmContent;
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
     public StockConverter(LLMContent llmContent) {
         this.llmContent = llmContent;
     }
 
     public Stock convertJsonToStock(String name, JSONObject jsonResponse) {
-        Stock stock = new Stock();
-        stock.setName(name);
-        LocalDate currentDate = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        stock.setDate(currentDate.format(formatter));
-        stock.setContentforLLM(buildContentListLLM(name, jsonResponse));
-        return stock;
+        return new Stock(
+                name,
+                getCurrentFormattedDate(),
+                buildContentListLLM(name, jsonResponse)
+        );
+    }
+
+    private String getCurrentFormattedDate() {
+        return LocalDate.now().format(FORMATTER);
     }
 
     private List<String> buildContentListLLM(String name, JSONObject sentiments) {
-        List<String> contentList = new ArrayList<>();
-        String llmContent = null;
-        JSONArray feed = sentiments.getJSONArray("feed");
-        for (int i = 0; i < feed.length(); i++) {
-            if (!ObjectUtils.isEmpty(feed)){
-                llmContent = this.llmContent.prepareNewsLLMContent(name, feed, i);
-            }
-            contentList.add(llmContent);
+        JSONArray feed = sentiments.optJSONArray("feed");
+        if (ObjectUtils.isEmpty(feed)) {
+            return List.of();
         }
-        return contentList;
+        return IntStream.range(0, feed.length())
+                .mapToObj(i -> llmContent.prepareNewsLLMContent(name, feed, i))
+                .collect(Collectors.toList());
     }
 }

@@ -1,4 +1,4 @@
-package com.lucasnscr.ai_financial_analyst.model;
+package com.lucasnscr.ai_financial_analyst.enums;
 
 public enum CryptoEnum {
     BITCOIN("BTC"),

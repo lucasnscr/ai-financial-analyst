@@ -1,7 +1,11 @@
 package com.lucasnscr.ai_financial_analyst.service;
 
 import com.lucasnscr.ai_financial_analyst.client.AlphaClient;
-import com.lucasnscr.ai_financial_analyst.model.*;
+import com.lucasnscr.ai_financial_analyst.enums.CryptoEnum;
+import com.lucasnscr.ai_financial_analyst.enums.StockEnum;
+import com.lucasnscr.ai_financial_analyst.model.Crypto;
+import com.lucasnscr.ai_financial_analyst.model.Stock;
+import com.lucasnscr.ai_financial_analyst.model.StockClassification;
 import com.lucasnscr.ai_financial_analyst.repository.MongoCryptoRepository;
 import com.lucasnscr.ai_financial_analyst.repository.MongoStockClassificationRepository;
 import com.lucasnscr.ai_financial_analyst.repository.MongoStockRepository;
@@ -20,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
 
 @Service
 public class DataLoadingService {
@@ -46,25 +49,33 @@ public class DataLoadingService {
         this.alphaClient = alphaClient;
     }
 
-    // This method could be scheduled using @Scheduled if needed.
     public void loadData() {
         log.info("Starting DataLoadingService.");
-        StockClassification stockClassification = alphaClient.requestGainersLosers();
-        if (!ObjectUtils.isEmpty(stockClassification)){
-            stockClassificationRepository.save(stockClassification);
-            saveVectorDb(stockClassification.getClassifications());
-        }
-//        processEntities(stockRepository, StockEnum.values(), this::processStock);
-//        processEntities(cryptoRepository, CryptoEnum.values(), this::processCrypto);
+
+        handleStockClassification();
+
+        processEntities(stockRepository, StockEnum.values(), this::processStock);
+        processEntities(cryptoRepository, CryptoEnum.values(), this::processCrypto);
+
         log.info("DataLoadingService completed.");
     }
 
+    private void handleStockClassification() {
+        StockClassification stockClassification = alphaClient.requestGainersLosers();
+        if (ObjectUtils.isEmpty(stockClassification)) {
+            return;
+        }
+
+        stockClassificationRepository.save(stockClassification);
+        saveVectorDb(stockClassification.getClassifications());
+    }
+
     private <T, E extends Enum<E>> void processEntities(MongoRepository<T, String> repository, E[] enumValues, Consumer<E> processor) {
-        List<T> entityList = repository.findAll();
-        if (CollectionUtils.isEmpty(entityList)) {
+        List<T> entities = repository.findAll();
+        if (CollectionUtils.isEmpty(entities)) {
             loadEntities(enumValues, processor);
         } else {
-            entityList.stream()
+            entities.stream()
                     .map(this::getContentForLLM)
                     .filter(content -> !CollectionUtils.isEmpty(content))
                     .forEach(this::saveVectorDb);
@@ -84,10 +95,7 @@ public class DataLoadingService {
     private void processStock(StockEnum stockEnum) {
         try {
             Stock stock = alphaClient.requestStock(stockEnum.getTicker());
-            if (!ObjectUtils.isEmpty(stock)) {
-                stockRepository.save(stock);
-                saveVectorDb(stock.getContentforLLM());
-            }
+            processEntity(stock, stockRepository::save);
         } catch (Exception e) {
             log.error("Error processing stock: {}", stockEnum.getTicker(), e);
         }
@@ -96,13 +104,18 @@ public class DataLoadingService {
     private void processCrypto(CryptoEnum cryptoEnum) {
         try {
             Crypto crypto = alphaClient.requestCrypto(cryptoEnum.getTicker());
-            if (!ObjectUtils.isEmpty(crypto)) {
-                cryptoRepository.save(crypto);
-                saveVectorDb(crypto.getContentforLLM());
-            }
+            processEntity(crypto, cryptoRepository::save);
         } catch (Exception e) {
             log.error("Error processing crypto: {}", cryptoEnum.getTicker(), e);
         }
+    }
+
+    private <T> void processEntity(T entity, Consumer<T> saveFunction) {
+        if (ObjectUtils.isEmpty(entity)) {
+            return;
+        }
+        saveFunction.accept(entity);
+        saveVectorDb(getContentForLLM(entity));
     }
 
     private List<String> getContentForLLM(Object entity) {
@@ -118,11 +131,9 @@ public class DataLoadingService {
         if (CollectionUtils.isEmpty(contentList)) {
             return;
         }
-
         List<Document> documents = contentList.stream()
                 .map(Document::new)
                 .collect(Collectors.toList());
-
         log.info("Creating embeddings and storing in vector store...");
         vectorStore.add(documents);
         log.info("Done storing embeddings in vector store.");
