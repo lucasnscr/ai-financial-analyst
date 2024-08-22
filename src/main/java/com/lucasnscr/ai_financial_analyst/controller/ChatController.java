@@ -12,7 +12,7 @@ import reactor.core.publisher.Flux;
 
 @RestController
 @RequestMapping("/chat")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:4200")
 public class ChatController {
 
     private static final Logger logger = LoggerFactory.getLogger(ChatController.class);
