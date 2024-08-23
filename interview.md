@@ -1,5 +1,22 @@
 Certainly! Here's a more detailed breakdown, including bullet points for system design preparation and examples with results for accountability, feedback & coaching, experimentation & fast failure, and customer connection.
 
+### Purpose and Priorities 
+
+**Win in Food**  
+Deliver quality and build a robust ecosystem that allows customers to access food in the simplest way possible.
+
+**Brand Integration**  
+Bringing together all our ecosystems—Argos, Nectar, and banking services—to deliver exceptional experiences to our customers. This integrated approach drives profitability and supports growth in our food sector, aligning with our broader ambitions.
+
+**Save to Invest**  
+Streamline the business to reduce costs and improve efficiency. By simplifying operations, we can focus on what matters most: prioritizing our customers.
+
+**Customer Connection**  
+Leverage the power of Nectar to stay closely connected with our customers, understanding and meeting their needs.
+
+**Plan for Better**  
+Place environmental and social sustainability at the heart of our operations, ensuring a better future for all.
+
 ### **System Design Interview Preparation**
 
 - **Scalability**
