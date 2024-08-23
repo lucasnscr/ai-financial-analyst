@@ -3,7 +3,7 @@ package com.lucasnscr.ai_financial_analyst.llm;
 import com.lucasnscr.ai_financial_analyst.formatter.NewsFormatter;
 import com.lucasnscr.ai_financial_analyst.formatter.StockClassificationFormatter;
 import com.lucasnscr.ai_financial_analyst.llm.model.StockClassficationLLM;
-import com.lucasnscr.ai_financial_analyst.llm.model.StockNewsLLM;
+import com.lucasnscr.ai_financial_analyst.llm.model.StockCryptoNewsLLM;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
@@ -21,7 +21,7 @@ public class LLMContent {
 
     public String prepareNewsLLMContent(String name, JSONArray array, int i) {
         JSONObject jsonObject = array.getJSONObject(i);
-        StockNewsLLM article = new StockNewsLLM(
+        StockCryptoNewsLLM article = new StockCryptoNewsLLM(
                 jsonObject.getString("title"),
                 jsonObject.getString("url"),
                 jsonObject.getString("time_published"),

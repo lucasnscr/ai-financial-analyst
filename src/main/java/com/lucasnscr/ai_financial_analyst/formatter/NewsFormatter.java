@@ -1,6 +1,6 @@
 package com.lucasnscr.ai_financial_analyst.formatter;
 
-import com.lucasnscr.ai_financial_analyst.llm.model.StockNewsLLM;
+import com.lucasnscr.ai_financial_analyst.llm.model.StockCryptoNewsLLM;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -11,7 +11,7 @@ public class NewsFormatter {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss");
 
-    public String format(String name, StockNewsLLM article) {
+    public String format(String name, StockCryptoNewsLLM article) {
         LocalDateTime dateTime = LocalDateTime.parse(article.getTimePublished(), FORMATTER);
         return String.format("""
                         Article Information about: %s
