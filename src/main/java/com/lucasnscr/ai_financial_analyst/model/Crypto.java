@@ -14,7 +14,7 @@ import java.util.List;
 @Document(collection = "Crypto")
 public class Crypto {
     @Id
-    private String name;
     private String date;
+    private String name;
     private List<String> contentforLLM;
 }

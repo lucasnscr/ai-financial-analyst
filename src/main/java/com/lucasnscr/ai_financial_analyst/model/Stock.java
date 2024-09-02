@@ -15,7 +15,7 @@ import java.util.List;
 public class Stock {
 
     @Id
-    private String name;
     private String date;
+    private String name;
     private List<String> contentforLLM;
 }
