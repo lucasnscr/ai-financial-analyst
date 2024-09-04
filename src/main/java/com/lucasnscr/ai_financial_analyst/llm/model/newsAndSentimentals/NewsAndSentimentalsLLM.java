@@ -1,9 +1,9 @@
-package com.lucasnscr.ai_financial_analyst.llm.model;
+package com.lucasnscr.ai_financial_analyst.llm.model.newsAndSentimentals;
 
 import lombok.Data;
 
 @Data
-public class StockCryptoNewsLLM {
+public class NewsAndSentimentalsLLM {
 
     private final String title;
     private final String url;
@@ -13,7 +13,7 @@ public class StockCryptoNewsLLM {
     private final String overallSentimentLabel;
 
 
-    public StockCryptoNewsLLM(String title, String url, String timePublished, String summary, double overallSentimentScore, String overallSentimentLabel) {
+    public NewsAndSentimentalsLLM(String title, String url, String timePublished, String summary, double overallSentimentScore, String overallSentimentLabel) {
         this.title = title;
         this.url = url;
         this.timePublished = timePublished;

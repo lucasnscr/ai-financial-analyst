@@ -1,7 +1,7 @@
-package com.lucasnscr.ai_financial_analyst.converter;
+package com.lucasnscr.ai_financial_analyst.converter.classification;
 
 import com.lucasnscr.ai_financial_analyst.llm.LLMContent;
-import com.lucasnscr.ai_financial_analyst.model.StockClassification;
+import com.lucasnscr.ai_financial_analyst.model.classification.StockClassification;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @Component
-public class StockClassificationConverter {
+public class ClassificationConverter {
 
     private static final String TOP_GAINERS = "top_gainers";
     private static final String TOP_LOSERS = "top_losers";
@@ -20,7 +20,7 @@ public class StockClassificationConverter {
 
     private final LLMContent llmContent;
 
-    public StockClassificationConverter(LLMContent llmContent) {
+    public ClassificationConverter(LLMContent llmContent) {
         this.llmContent = llmContent;
     }
 
@@ -29,21 +29,19 @@ public class StockClassificationConverter {
             return new StockClassification();
         }
 
-        return new StockClassification(
-                jsonResponse.getString("last_updated"),
+        return new StockClassification(jsonResponse.getString("last_updated"),
+                null,
                 buildStockClassification(jsonResponse)
         );
     }
 
     private List<String> buildStockClassification(JSONObject classification) {
         List<String> classifications = new ArrayList<>();
-
         Stream.of(
                 new ClassificationData(TOP_GAINERS, classification.optJSONArray(TOP_GAINERS)),
                 new ClassificationData(TOP_LOSERS, classification.optJSONArray(TOP_LOSERS)),
                 new ClassificationData(MOST_ACTIVELY_TRADED, classification.optJSONArray(MOST_ACTIVELY_TRADED))
         ).forEach(data -> addClassificationData(classifications, data));
-
         return classifications;
     }
 
@@ -51,7 +49,6 @@ public class StockClassificationConverter {
         if (ObjectUtils.isEmpty(data.jsonArray)) {
             return;
         }
-
         for (int i = 0; i < data.jsonArray.length(); i++) {
             classifications.add(llmContent.prepareClassification(data.type, data.jsonArray, i));
         }

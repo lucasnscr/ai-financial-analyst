@@ -1,7 +1,7 @@
-package com.lucasnscr.ai_financial_analyst.converter;
+package com.lucasnscr.ai_financial_analyst.converter.newsAndSentimentals;
 
 import com.lucasnscr.ai_financial_analyst.llm.LLMContent;
-import com.lucasnscr.ai_financial_analyst.model.Stock;
+import com.lucasnscr.ai_financial_analyst.model.newsAndSentimentals.CryptoNewsAndSentimentals;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
@@ -10,21 +10,22 @@ import org.springframework.util.ObjectUtils;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Component
-public class StockConverter {
+public class NewsAndSentimentalsCryptoConverter {
 
     private final LLMContent llmContent;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    public StockConverter(LLMContent llmContent) {
+    public NewsAndSentimentalsCryptoConverter(LLMContent llmContent) {
         this.llmContent = llmContent;
     }
 
-    public Stock convertJsonToStock(String name, JSONObject jsonResponse) {
-        return new Stock(
+    public CryptoNewsAndSentimentals convertJsonToCrypto(String name, JSONObject jsonResponse) {
+        return new CryptoNewsAndSentimentals(
                 name,
                 getCurrentFormattedDate(),
                 buildContentListLLM(name, jsonResponse)

@@ -1,8 +1,8 @@
 //package converter;
 //
-//import com.lucasnscr.ai_financial_analyst.converter.CryptoConverter;
+//import com.lucasnscr.ai_financial_analyst.converter.newsAndSentimentals.NewsAndSentimentalsCryptoConverter;
 //import com.lucasnscr.ai_financial_analyst.llm.LLMContent;
-//import com.lucasnscr.ai_financial_analyst.model.Crypto;
+//import com.lucasnscr.ai_financial_analyst.model.newsAndSentimentals.CryptoNewsAndSentimentals;
 //import org.json.JSONException;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@
 //    private LLMContent llmContent;
 //
 //    @InjectMocks
-//    private CryptoConverter cryptoConverter;
+//    private NewsAndSentimentalsCryptoConverter cryptoConverter;
 //
 //    @BeforeEach
 //    public void setUp() {
@@ -50,7 +50,7 @@
 //                .thenReturn("Processed Content");
 //
 //        // Act
-//        Crypto result = cryptoConverter.convertJsonToCrypto(cryptoName, jsonResponse);
+//        CryptoNewsAndSentimentals result = cryptoConverter.convertJsonToCrypto(cryptoName, jsonResponse);
 //
 //        // Assert
 //        assertNotNull(result);

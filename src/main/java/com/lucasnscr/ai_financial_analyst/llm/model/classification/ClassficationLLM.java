@@ -1,10 +1,10 @@
-package com.lucasnscr.ai_financial_analyst.llm.model;
+package com.lucasnscr.ai_financial_analyst.llm.model.classification;
 
 import lombok.Data;
 
 
 @Data
-public class StockClassficationLLM {
+public class ClassficationLLM {
 
     private final String ticker;
     private final double price;
@@ -13,7 +13,7 @@ public class StockClassficationLLM {
     private final double volume;
 
 
-    public StockClassficationLLM(String ticker, double price, double changeAmount, String changePercentage, double volume) {
+    public ClassficationLLM(String ticker, double price, double changeAmount, String changePercentage, double volume) {
         this.ticker = ticker;
         this.price = price;
         this.changeAmount = changeAmount;

@@ -1,8 +1,8 @@
 //package converter;
 //
-//import com.lucasnscr.ai_financial_analyst.converter.StockConverter;
+//import com.lucasnscr.ai_financial_analyst.converter.newsAndSentimentals.NewsAndSentimentalsStockConverter;
 //import com.lucasnscr.ai_financial_analyst.llm.LLMContent;
-//import com.lucasnscr.ai_financial_analyst.model.Stock;
+//import com.lucasnscr.ai_financial_analyst.model.newsAndSentimentals.StockNewsAndSentimentals;
 //import org.json.JSONArray;
 //import org.json.JSONException;
 //import org.json.JSONObject;
@@ -28,7 +28,7 @@
 //    private LLMContent llmContent;
 //
 //    @InjectMocks
-//    private StockConverter stockConverter;
+//    private NewsAndSentimentalsStockConverter stockConverter;
 //
 //    @BeforeEach
 //    public void setUp() {
@@ -41,14 +41,14 @@
 //        JSONObject jsonResponse = new JSONObject();
 //        JSONArray feedArray = new JSONArray();
 //        JSONObject feedItem = new JSONObject();
-//        feedItem.put("content", "Sample Stock Content");
+//        feedItem.put("content", "Sample StockNewsAndSentimentals Content");
 //        feedArray.put(feedItem);
 //        jsonResponse.put("feed", feedArray);
 //
 //        Mockito.when(llmContent.prepareLLMContent(anyString(), eq(feedArray), eq(0)))
-//                .thenReturn("Processed Stock Content");
+//                .thenReturn("Processed StockNewsAndSentimentals Content");
 //
-//        Stock result = stockConverter.convertJsonToStock(stockName, jsonResponse);
+//        StockNewsAndSentimentals result = stockConverter.convertJsonToStock(stockName, jsonResponse);
 //
 //        assertNotNull(result);
 //        assertEquals(stockName, result.getName());
@@ -59,7 +59,7 @@
 //        List<String> contentForLLM = result.getContentforLLM();
 //        assertNotNull(contentForLLM);
 //        assertEquals(1, contentForLLM.size());
-//        assertEquals("Processed Stock Content", contentForLLM.get(0));
+//        assertEquals("Processed StockNewsAndSentimentals Content", contentForLLM.get(0));
 //
 //        Mockito.verify(llmContent, Mockito.times(1))
 //                .prepareLLMContent(anyString(), eq(feedArray), eq(0));
@@ -74,7 +74,7 @@
 //        Mockito.when(llmContent.prepareLLMContent(anyString(), Mockito.any(), Mockito.anyInt()))
 //                .thenReturn(null);
 //
-//        Stock result = stockConverter.convertJsonToStock(stockName, jsonResponse);
+//        StockNewsAndSentimentals result = stockConverter.convertJsonToStock(stockName, jsonResponse);
 //
 //        assertNotNull(result);
 //        assertEquals(stockName, result.getName());

@@ -1,4 +1,4 @@
-package com.lucasnscr.ai_financial_analyst.model;
+package com.lucasnscr.ai_financial_analyst.model.newsAndSentimentals;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,10 +11,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Document("StockClassifications")
-public class StockClassification {
-
+@Document(collection = "CryptoNewsAndSentimentals")
+public class CryptoNewsAndSentimentals {
     @Id
     private String date;
-    private List<String> classifications;
+    private String name;
+    private List<String> contentforLLM;
 }

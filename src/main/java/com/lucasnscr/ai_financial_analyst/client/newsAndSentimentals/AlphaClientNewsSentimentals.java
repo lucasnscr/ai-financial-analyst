@@ -1,12 +1,10 @@
-package com.lucasnscr.ai_financial_analyst.client;
+package com.lucasnscr.ai_financial_analyst.client.newsAndSentimentals;
 
 import com.lucasnscr.ai_financial_analyst.converter.newsAndSentimentals.NewsAndSentimentalsCryptoConverter;
-import com.lucasnscr.ai_financial_analyst.converter.classification.ClassificationConverter;
 import com.lucasnscr.ai_financial_analyst.converter.newsAndSentimentals.NewsAndSentimentalsStockConverter;
 import com.lucasnscr.ai_financial_analyst.exception.AlphaClientException;
 import com.lucasnscr.ai_financial_analyst.model.newsAndSentimentals.CryptoNewsAndSentimentals;
 import com.lucasnscr.ai_financial_analyst.model.newsAndSentimentals.StockNewsAndSentimentals;
-import com.lucasnscr.ai_financial_analyst.model.classification.StockClassification;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,52 +20,42 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 @Component
-public class AlphaClient {
+public class AlphaClientNewsSentimentals {
 
-    private static final Logger log = LoggerFactory.getLogger(AlphaClient.class);
+    private static final Logger log = LoggerFactory.getLogger(AlphaClientNewsSentimentals.class);
 
     private final WebClient webClient;
     private final NewsAndSentimentalsStockConverter newsAndSentimentalsStockConverter;
     private final NewsAndSentimentalsCryptoConverter newsAndSentimentalsCryptoConverter;
-    private final ClassificationConverter classificationConverter;
     private final String apikey;
 
     @Autowired
-    public AlphaClient(WebClient webClient,
+    public AlphaClientNewsSentimentals(WebClient webClient,
                        NewsAndSentimentalsStockConverter newsAndSentimentalsStockConverter,
                        NewsAndSentimentalsCryptoConverter newsAndSentimentalsCryptoConverter,
-                       ClassificationConverter classificationConverter,
                        @Value("${Alpha.api-key}") String apikey) {
         this.webClient = webClient;
         this.newsAndSentimentalsStockConverter = newsAndSentimentalsStockConverter;
         this.newsAndSentimentalsCryptoConverter = newsAndSentimentalsCryptoConverter;
-        this.classificationConverter = classificationConverter;
         this.apikey = apikey;
     }
 
     public StockNewsAndSentimentals requestStock(String ticker) {
         return requestDataFromApi(
                 ticker,
-                "NEWS_SENTIMENT",
-                newsAndSentimentalsStockConverter::convertJsonToStock);
+                newsAndSentimentalsStockConverter::convertJsonToStock
+        );
     }
 
     public CryptoNewsAndSentimentals requestCrypto(String ticker) {
         return requestDataFromApi(
                 ticker,
-                "NEWS_SENTIMENT",
-                newsAndSentimentalsCryptoConverter::convertJsonToCrypto);
+                newsAndSentimentalsCryptoConverter::convertJsonToCrypto
+        );
     }
 
-    public StockClassification requestGainersLosers() {
-        return requestDataFromApi(
-                null,
-                "TOP_GAINERS_LOSERS",
-                (ignored, jsonResponse) -> classificationConverter.convertJsonToStockClassification(jsonResponse));
-    }
-
-    private <T> T requestDataFromApi(String ticker, String function, BiFunction<String, JSONObject, T> converter) {
-        Map<String, Object> responseJson = performApiRequest(ticker, function);
+    private <T> T requestDataFromApi(String ticker, BiFunction<String, JSONObject, T> converter) {
+        Map<String, Object> responseJson = performApiRequest(ticker);
         if (ObjectUtils.isEmpty(responseJson)) {
             log.warn("Received empty response for ticker: {}", ticker);
             return null;
@@ -75,22 +63,24 @@ public class AlphaClient {
         return converter.apply(ticker, new JSONObject(responseJson));
     }
 
-    private Map<String, Object> performApiRequest(String ticker, String function) {
+    private Map<String, Object> performApiRequest(String ticker) {
         try {
             log.info("Requesting data from Alpha API at {}", Instant.now());
             return this.webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/query")
-                            .queryParam("function", function)
+                            .queryParam("function", "NEWS_SENTIMENT")
                             .queryParam("tickers", ticker)
                             .queryParam("apikey", apikey)
                             .build())
                     .retrieve()
-                    .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
+                    .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
+                    })
                     .block();
         } catch (Exception e) {
             log.error("Error fetching data from Alpha API for ticker: {}", ticker, e);
             throw new AlphaClientException("Error fetching data from Alpha API", e);
         }
     }
+
 }

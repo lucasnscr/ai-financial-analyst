@@ -1,26 +1,26 @@
-package com.lucasnscr.ai_financial_analyst.formatter;
+package com.lucasnscr.ai_financial_analyst.formatter.classification;
 
-import com.lucasnscr.ai_financial_analyst.llm.model.StockClassficationLLM;
+import com.lucasnscr.ai_financial_analyst.llm.model.classification.ClassficationLLM;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.function.Function;
 
 @Component
-public class StockClassificationFormatter {
+public class ClassificationFormatter {
 
-    private final Map<String, Function<StockClassficationLLM, String>> classificationStrategies = Map.of(
+    private final Map<String, Function<ClassficationLLM, String>> classificationStrategies = Map.of(
             "top_gainers", this::formatTopGainers,
             "top_losers", this::formatTopLosers,
             "most_actively_traded", this::formatMostActivelyTraded
     );
 
-    public String format(String type, StockClassficationLLM classification) {
+    public String format(String type, ClassficationLLM classification) {
         return classificationStrategies.getOrDefault(type, this::formatUnknown)
                 .apply(classification);
     }
 
-    private String formatTopGainers(StockClassficationLLM classification) {
+    private String formatTopGainers(ClassficationLLM classification) {
         return String.format("""
                         Top Gainers US tickers
                         Ticker: %s
@@ -34,7 +34,7 @@ public class StockClassificationFormatter {
                 classification.getVolume());
     }
 
-    private String formatTopLosers(StockClassficationLLM classification) {
+    private String formatTopLosers(ClassficationLLM classification) {
         return String.format("""
                         Top Losers US tickers
                         Ticker: %s
@@ -48,7 +48,7 @@ public class StockClassificationFormatter {
                 classification.getVolume());
     }
 
-    private String formatMostActivelyTraded(StockClassficationLLM classification) {
+    private String formatMostActivelyTraded(ClassficationLLM classification) {
         return String.format("""
                         Most Actively Traded US tickers
                         Ticker: %s
@@ -62,7 +62,7 @@ public class StockClassificationFormatter {
                 classification.getVolume());
     }
 
-    private String formatUnknown(StockClassficationLLM classification) {
+    private String formatUnknown(ClassficationLLM classification) {
         return "Unknown classification type";
     }
 
