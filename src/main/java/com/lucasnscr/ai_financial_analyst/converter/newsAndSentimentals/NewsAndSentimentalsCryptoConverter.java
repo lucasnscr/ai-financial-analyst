@@ -1,6 +1,7 @@
 package com.lucasnscr.ai_financial_analyst.converter.newsAndSentimentals;
 
-import com.lucasnscr.ai_financial_analyst.llm.LLMContent;
+import com.lucasnscr.ai_financial_analyst.formatter.newsAndSentimentals.NewsFormatter;
+import com.lucasnscr.ai_financial_analyst.llm.model.newsAndSentimentals.NewsAndSentimentalsLLM;
 import com.lucasnscr.ai_financial_analyst.model.newsAndSentimentals.CryptoNewsAndSentimentals;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -17,11 +18,11 @@ import java.util.stream.IntStream;
 @Component
 public class NewsAndSentimentalsCryptoConverter {
 
-    private final LLMContent llmContent;
+    private final NewsFormatter newsFormatter;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    public NewsAndSentimentalsCryptoConverter(LLMContent llmContent) {
-        this.llmContent = llmContent;
+    public NewsAndSentimentalsCryptoConverter(NewsFormatter newsFormatter) {
+        this.newsFormatter = newsFormatter;
     }
 
     public CryptoNewsAndSentimentals convertJsonToCrypto(String name, JSONObject jsonResponse) {
@@ -42,7 +43,20 @@ public class NewsAndSentimentalsCryptoConverter {
             return List.of();
         }
         return IntStream.range(0, feed.length())
-                .mapToObj(i -> llmContent.prepareNewsLLMContent(name, feed, i))
+                .mapToObj(i -> prepareNewsLLMContent(name, feed, i))
                 .collect(Collectors.toList());
+    }
+
+    public String prepareNewsLLMContent(String name, JSONArray array, int i) {
+        JSONObject jsonObject = array.getJSONObject(i);
+        NewsAndSentimentalsLLM article = new NewsAndSentimentalsLLM(
+                jsonObject.getString("title"),
+                jsonObject.getString("url"),
+                jsonObject.getString("time_published"),
+                jsonObject.getString("summary"),
+                jsonObject.getDouble("overall_sentiment_score"),
+                jsonObject.getString("overall_sentiment_label")
+        );
+        return newsFormatter.format(name, article);
     }
 }

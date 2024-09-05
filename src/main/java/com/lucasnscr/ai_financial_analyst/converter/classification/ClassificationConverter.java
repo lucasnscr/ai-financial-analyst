@@ -1,6 +1,7 @@
 package com.lucasnscr.ai_financial_analyst.converter.classification;
 
-import com.lucasnscr.ai_financial_analyst.llm.LLMContent;
+import com.lucasnscr.ai_financial_analyst.formatter.classification.ClassificationFormatter;
+import com.lucasnscr.ai_financial_analyst.llm.model.classification.ClassficationLLM;
 import com.lucasnscr.ai_financial_analyst.model.classification.StockClassification;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -18,10 +19,10 @@ public class ClassificationConverter {
     private static final String TOP_LOSERS = "top_losers";
     private static final String MOST_ACTIVELY_TRADED = "most_actively_traded";
 
-    private final LLMContent llmContent;
+    private final ClassificationFormatter classificationFormatter;
 
-    public ClassificationConverter(LLMContent llmContent) {
-        this.llmContent = llmContent;
+    public ClassificationConverter(ClassificationFormatter classificationFormatter) {
+        this.classificationFormatter = classificationFormatter;
     }
 
     public StockClassification convertJsonToStockClassification(JSONObject jsonResponse) {
@@ -50,8 +51,20 @@ public class ClassificationConverter {
             return;
         }
         for (int i = 0; i < data.jsonArray.length(); i++) {
-            classifications.add(llmContent.prepareClassification(data.type, data.jsonArray, i));
+            classifications.add(prepareClassification(data.type, data.jsonArray, i));
         }
+    }
+
+    private String prepareClassification(String type, JSONArray array, int i) {
+        JSONObject jsonObject = array.getJSONObject(i);
+        ClassficationLLM classficationLLM = new ClassficationLLM(
+                jsonObject.getString("ticker"),
+                jsonObject.getDouble("price"),
+                jsonObject.getDouble("change_amount"),
+                jsonObject.getString("change_percentage"),
+                jsonObject.getDouble("volume")
+        );
+        return classificationFormatter.format(type, classficationLLM);
     }
 
     private static class ClassificationData {

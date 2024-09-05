@@ -195,8 +195,14 @@ public class DataLoadingService {
             return ((CryptoNewsAndSentimentals) entity).getContentforLLM();
         } else if (entity instanceof Stock) {
             return ((Stock) entity).getContentForLLM();
+        } else if (entity instanceof StockClassification) {
+            return ((StockClassification) entity).getContentForLLM();
         } else if (entity instanceof FundamentalsDataCompany) {
             return ((FundamentalsDataCompany) entity).getContentForLLM();
+        } else if (entity instanceof EconomyData) {
+            return ((EconomyData) entity).getContentForLLM();
+        } else if (entity instanceof Technical) {
+            return ((Technical) entity).getContentForLLM();
         }
         return Collections.emptyList();
     }
