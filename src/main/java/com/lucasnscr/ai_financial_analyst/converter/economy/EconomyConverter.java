@@ -10,15 +10,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Supplier;
 
 @Component
 public class EconomyConverter {
 
-    private static final String REAL_GDP = "REAL_GDP"; //US PIB
+    private static final String REAL_GDP = "REAL_GDP"; // US PIB
     private static final String TREASURY_YIELD = "TREASURY_YIELD";
     private static final String FEDERAL_FUNDS_RATE = "FEDERAL_FUNDS_RATE";
     private static final String UNEMPLOYMENT = "UNEMPLOYMENT";
@@ -26,144 +24,101 @@ public class EconomyConverter {
 
     private final EconomyFormatter economyFormatter;
 
-
     @Autowired
     public EconomyConverter(EconomyFormatter economyFormatter) {
         this.economyFormatter = economyFormatter;
     }
 
     public EconomyData buildEconomyData(Map<String, JSONObject> responseData) {
-        EconomyData economyData = null;
-        String content = "";
-        if (!ObjectUtils.isEmpty(responseData)) {
-            economyData = new EconomyData();
-            EconomyLLM economyLLM = new EconomyLLM();
-            List<GdpYearLLM> gdpYearLLMList;
-            List<TreasureLLM> treasureLLMList;
-            List<FederalFundsRateLLM> federalFundsRateLLMList;
-            List<UnemploymentLLM> unemploymentLLMList;
-            List<InflationLLM> inflationLLMList;
-            for (Map.Entry<String, JSONObject> entry : responseData.entrySet()) {
-                String key = entry.getKey();
-                JSONObject jsonData = entry.getValue();
-
-                switch (key) {
-                    case REAL_GDP:
-                        gdpYearLLMList = buildGdpYear(jsonData);
-                        economyLLM.setGdpYearLLMList(gdpYearLLMList);
-                        break;
-                    case TREASURY_YIELD:
-                        treasureLLMList = buildTreasure(jsonData);
-                        economyLLM.setTreasureLLMList(treasureLLMList);
-                        break;
-                    case FEDERAL_FUNDS_RATE:
-                        federalFundsRateLLMList = buildFederalFundsRate(jsonData);
-                        economyLLM.setFederalFundsRateLLMList(federalFundsRateLLMList);
-                        break;
-                    case UNEMPLOYMENT:
-                        unemploymentLLMList = buildUnemployment(jsonData);
-                        economyLLM.setUnemploymentLLMList(unemploymentLLMList);
-                        break;
-                    case INFLATION:
-                        inflationLLMList = buildInflation(jsonData);
-                        economyLLM.setInflationLLMList(inflationLLMList);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            if (!ObjectUtils.isEmpty(economyLLM)) {
-                content = economyFormatter.formatEconomy(economyLLM);
-            }
-            economyData.setName("United States of America");
-            economyData.setDate(LocalDate.now().toString());
-            economyData.setContentForLLM(Collections.singletonList(content));
+        if (ObjectUtils.isEmpty(responseData)) {
+            return null;
         }
+
+        EconomyLLM economyLLM = new EconomyLLM();
+
+        responseData.forEach((key, jsonData) -> {
+            switch (key) {
+                case REAL_GDP -> economyLLM.setGdpYearLLMList(buildGdpYear(jsonData));
+                case TREASURY_YIELD -> economyLLM.setTreasureLLMList(buildTreasure(jsonData));
+                case FEDERAL_FUNDS_RATE -> economyLLM.setFederalFundsRateLLMList(buildFederalFundsRate(jsonData));
+                case UNEMPLOYMENT -> economyLLM.setUnemploymentLLMList(buildUnemployment(jsonData));
+                case INFLATION -> economyLLM.setInflationLLMList(buildInflation(jsonData));
+                default -> throw new IllegalArgumentException("Unrecognized key: " + key);
+            }
+        });
+
+        EconomyData economyData = new EconomyData();
+        economyData.setName("United States of America");
+        economyData.setDate(LocalDate.now().toString());
+
+        String content = economyFormatter.formatEconomy(economyLLM);
+        economyData.setContentForLLM(Collections.singletonList(content));
+
         return economyData;
     }
 
     private List<GdpYearLLM> buildGdpYear(JSONObject jsonData) {
-        List<GdpYearLLM> gdpYearList = new ArrayList<>();
-        JSONArray dataArray = jsonData.optJSONArray("data");
-        if (dataArray != null) {
-            for (int i = 0; i < dataArray.length(); i++) {
-                JSONObject dataPoint = dataArray.optJSONObject(i);
-                if (dataPoint != null) {
-                    GdpYearLLM gdpYear = new GdpYearLLM();
-                    gdpYear.setDate(dataPoint.optString("date"));
-                    gdpYear.setValue(dataPoint.optDouble("value"));
-                    gdpYearList.add(gdpYear);
-                }
-            }
-        }
-        return gdpYearList;
+        return buildLLM(jsonData, GdpYearLLM::new,
+                (llm, date, value) -> {
+                    llm.setDate(date);
+                    llm.setValue(Double.parseDouble(value));
+                });
     }
 
     private List<TreasureLLM> buildTreasure(JSONObject jsonData) {
-        List<TreasureLLM> treasureList = new ArrayList<>();
-        JSONArray dataArray = jsonData.optJSONArray("data");
-        if (dataArray != null) {
-            for (int i = 0; i < dataArray.length(); i++) {
-                JSONObject treasureData = dataArray.optJSONObject(i);
-                if (treasureData != null) {
-                    TreasureLLM treasure = new TreasureLLM();
-                    treasure.setDate(treasureData.optString("date"));
-                    treasure.setValue(treasureData.optDouble("value"));
-                    treasureList.add(treasure);
-                }
-            }
-        }
-        return treasureList;
+        return buildLLM(jsonData, TreasureLLM::new,
+                (llm, date, value) -> {
+                    llm.setDate(date);
+                    llm.setValue(Double.parseDouble(value));
+                });
     }
 
     private List<FederalFundsRateLLM> buildFederalFundsRate(JSONObject jsonData) {
-        List<FederalFundsRateLLM> federalFundsRateList = new ArrayList<>();
-        JSONArray dataArray = jsonData.optJSONArray("data");
-        if (dataArray != null) {
-            for (int i = 0; i < dataArray.length(); i++) {
-                JSONObject dataPoint = dataArray.optJSONObject(i);
-                if (dataPoint != null) {
-                    FederalFundsRateLLM federalFundsRate = new FederalFundsRateLLM();
-                    federalFundsRate.setDate(dataPoint.optString("date"));
-                    federalFundsRate.setValue(dataPoint.optDouble("value"));
-                    federalFundsRateList.add(federalFundsRate);
-                }
-            }
-        }
-        return federalFundsRateList;
+        return buildLLM(jsonData, FederalFundsRateLLM::new,
+                (llm, date, value) -> {
+                    llm.setDate(date);
+                    llm.setValue(Double.parseDouble(value));
+                });
     }
 
     private List<UnemploymentLLM> buildUnemployment(JSONObject jsonData) {
-        List<UnemploymentLLM> unemploymentList = new ArrayList<>();
-        JSONArray dataArray = jsonData.optJSONArray("data");
-        if (dataArray != null) {
-            for (int i = 0; i < dataArray.length(); i++) {
-                JSONObject dataPoint = dataArray.optJSONObject(i);
-                if (dataPoint != null) {
-                    UnemploymentLLM unemployment = new UnemploymentLLM();
-                    unemployment.setDate(dataPoint.optString("date"));
-                    unemployment.setValue(dataPoint.optDouble("value"));
-                    unemploymentList.add(unemployment);
-                }
-            }
-        }
-        return unemploymentList;
+        return buildLLM(jsonData, UnemploymentLLM::new,
+                (llm, date, value) -> {
+                    llm.setDate(date);
+                    llm.setValue(Double.parseDouble(value));
+                });
     }
 
     private List<InflationLLM> buildInflation(JSONObject jsonData) {
-        List<InflationLLM> inflationList = new ArrayList<>();
+        return buildLLM(jsonData, InflationLLM::new,
+                (llm, date, value) -> {
+                    llm.setDate(date);
+                    llm.setValue(Double.parseDouble(value));
+                });
+    }
+
+    private <T> List<T> buildLLM(JSONObject jsonData, Supplier<T> constructor, TriConsumer<T, String, String> consumer) {
+        List<T> resultList = new ArrayList<>();
         JSONArray dataArray = jsonData.optJSONArray("data");
+
         if (dataArray != null) {
             for (int i = 0; i < dataArray.length(); i++) {
                 JSONObject dataPoint = dataArray.optJSONObject(i);
                 if (dataPoint != null) {
-                    InflationLLM inflation = new InflationLLM();
-                    inflation.setDate(dataPoint.optString("date"));
-                    inflation.setValue(dataPoint.optDouble("value"));
-                    inflationList.add(inflation);
+                    T llm = constructor.get();
+                    String date = dataPoint.optString("date");
+                    String value = dataPoint.optString("value");
+                    consumer.accept(llm, date, value);
+                    resultList.add(llm);
                 }
             }
         }
-        return inflationList;
+
+        return resultList;
+    }
+
+    @FunctionalInterface
+    private interface TriConsumer<T, U, V> {
+        void accept(T t, U u, V v);
     }
 }

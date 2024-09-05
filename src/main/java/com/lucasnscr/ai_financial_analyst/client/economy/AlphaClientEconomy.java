@@ -12,7 +12,9 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriBuilder;
 
+import java.net.URI;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -45,29 +47,29 @@ public class AlphaClientEconomy {
     }
 
     public EconomyData requestEconomy() {
-        JSONObject jsonObject;
-        List<String> apiFunctions = Arrays.asList(
-                REAL_GDP, TREASURY_YIELD, FEDERAL_FUNDS_RATE,
-                UNEMPLOYMENT, INFLATION);
         Map<String, JSONObject> responseData = new HashMap<>();
-        for (String function : apiFunctions) {
-            if (REAL_GDP.equals(function)){
-                jsonObject = requestDataFromApi(function, MONTHLY);
-            } else if (TREASURY_YIELD.equals(function) || FEDERAL_FUNDS_RATE.equals(function)) {
-                jsonObject = requestDataFromApi(function, ANNUAL);
-            }else {
-                jsonObject = requestDataFromApi(function, null);
-            }
+        List<String> apiFunctions = Arrays.asList(REAL_GDP, TREASURY_YIELD, FEDERAL_FUNDS_RATE, UNEMPLOYMENT, INFLATION);
+        apiFunctions.forEach(function -> {
+            String interval = determineInterval(function);
+            JSONObject jsonObject = requestDataFromApi(function, interval);
             responseData.put(function, jsonObject);
-        }
+        });
         return economyConverter.buildEconomyData(responseData);
+    }
+
+    private String determineInterval(String function) {
+        return switch (function) {
+            case REAL_GDP -> MONTHLY;
+            case TREASURY_YIELD, FEDERAL_FUNDS_RATE -> ANNUAL;
+            default -> null;
+        };
     }
 
     private JSONObject requestDataFromApi(String function, String interval) {
         Map<String, Object> responseJson = performApiRequest(function, interval);
         if (ObjectUtils.isEmpty(responseJson)) {
-            log.warn("Received empty response for ticker: {}", function);
-            return null;
+            log.warn("Received empty response for function: {}", function);
+            return new JSONObject();
         }
         return new JSONObject(responseJson);
     }
@@ -75,43 +77,25 @@ public class AlphaClientEconomy {
     private Map<String, Object> performApiRequest(String function, String interval) {
         try {
             log.info("Requesting data from Alpha API at {}", Instant.now());
-            if (MONTHLY.equals(interval)){
-                return this.webClient.get()
-                        .uri(uriBuilder -> uriBuilder
-                                .path("/query")
-                                .queryParam("function", function)
-                                .queryParam("interval", MONTHLY)
-                                .queryParam("apikey", apikey)
-                                .build())
-                        .retrieve()
-                        .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
-                        .block();
+            return this.webClient.get()
+                    .uri(uriBuilder -> buildUri(uriBuilder, function, interval))
+                    .retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
+                    .block();
 
-            } else if (ANNUAL.equals(interval)){
-                return this.webClient.get()
-                        .uri(uriBuilder -> uriBuilder
-                                .path("/query")
-                                .queryParam("function", function)
-                                .queryParam("interval", ANNUAL)
-                                .queryParam("apikey", apikey)
-                                .build())
-                        .retrieve()
-                        .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
-                        .block();
-            } else {
-                return this.webClient.get()
-                        .uri(uriBuilder -> uriBuilder
-                                .path("/query")
-                                .queryParam("function", function)
-                                .queryParam("apikey", apikey)
-                                .build())
-                        .retrieve()
-                        .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
-                        .block();
-            }
         } catch (Exception e) {
             log.error("Error fetching data from Alpha API for function: {}", function, e);
-            throw new AlphaClientException("Error fetching data from Alpha API", e);
+            throw new AlphaClientException("Error fetching data from Alpha API for function: " + function, e);
         }
+    }
+
+    private URI buildUri(UriBuilder uriBuilder, String function, String interval) {
+        uriBuilder.path("/query")
+                .queryParam("function", function)
+                .queryParam("apikey", apikey);
+        if (!ObjectUtils.isEmpty(interval)) {
+            uriBuilder.queryParam("interval", interval);
+        }
+        return uriBuilder.build();
     }
 }
