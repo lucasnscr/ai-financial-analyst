@@ -1,6 +1,5 @@
 package com.lucasnscr.ai_financial_analyst.client.fundamentals;
 
-import com.lucasnscr.ai_financial_analyst.client.AlphaClient;
 import com.lucasnscr.ai_financial_analyst.converter.fundamentals.FundamentalsConverter;
 import com.lucasnscr.ai_financial_analyst.exception.AlphaClientException;
 import com.lucasnscr.ai_financial_analyst.model.fundamentals.FundamentalsDataCompany;
@@ -19,7 +18,7 @@ import java.util.*;
 @Component
 public class AlphaClientFundamentals {
 
-    private static final Logger log = LoggerFactory.getLogger(AlphaClient.class);
+    private static final Logger log = LoggerFactory.getLogger(AlphaClientFundamentals.class);
 
     private final WebClient webClient;
     private final String apikey;
@@ -81,5 +80,4 @@ public class AlphaClientFundamentals {
             throw new AlphaClientException("Error fetching data from Alpha API", e);
         }
     }
-
 }

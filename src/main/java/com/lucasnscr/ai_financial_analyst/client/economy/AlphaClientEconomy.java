@@ -1,6 +1,5 @@
 package com.lucasnscr.ai_financial_analyst.client.economy;
 
-import com.lucasnscr.ai_financial_analyst.client.AlphaClient;
 import com.lucasnscr.ai_financial_analyst.converter.economy.EconomyConverter;
 import com.lucasnscr.ai_financial_analyst.exception.AlphaClientException;
 import com.lucasnscr.ai_financial_analyst.model.economy.EconomyData;
@@ -24,7 +23,7 @@ import java.util.Map;
 @Component
 public class AlphaClientEconomy {
 
-    private static final Logger log = LoggerFactory.getLogger(AlphaClient.class);
+    private static final Logger log = LoggerFactory.getLogger(AlphaClientEconomy.class);
 
     private final WebClient webClient;
     private final String apikey;
