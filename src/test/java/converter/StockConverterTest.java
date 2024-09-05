@@ -1,6 +1,6 @@
 //package converter;
 //
-//import com.lucasnscr.ai_financial_analyst.converter.newsAndSentimentals.NewsAndSentimentalsStockConverter;
+//import com.lucasnscr.ai_financial_analyst.converter.newsAndSentimentals.NewsAndSentimentalsConverter;
 //import com.lucasnscr.ai_financial_analyst.llm.LLMContent;
 //import com.lucasnscr.ai_financial_analyst.model.newsAndSentimentals.StockNewsAndSentimentals;
 //import org.json.JSONArray;
@@ -28,7 +28,7 @@
 //    private LLMContent llmContent;
 //
 //    @InjectMocks
-//    private NewsAndSentimentalsStockConverter stockConverter;
+//    private NewsAndSentimentalsConverter stockConverter;
 //
 //    @BeforeEach
 //    public void setUp() {

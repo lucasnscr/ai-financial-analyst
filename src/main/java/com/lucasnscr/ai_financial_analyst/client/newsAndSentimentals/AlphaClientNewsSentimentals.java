@@ -1,7 +1,6 @@
 package com.lucasnscr.ai_financial_analyst.client.newsAndSentimentals;
 
-import com.lucasnscr.ai_financial_analyst.converter.newsAndSentimentals.NewsAndSentimentalsCryptoConverter;
-import com.lucasnscr.ai_financial_analyst.converter.newsAndSentimentals.NewsAndSentimentalsStockConverter;
+import com.lucasnscr.ai_financial_analyst.converter.newsAndSentimentals.NewsAndSentimentalsConverter;
 import com.lucasnscr.ai_financial_analyst.exception.AlphaClientException;
 import com.lucasnscr.ai_financial_analyst.model.newsAndSentimentals.CryptoNewsAndSentimentals;
 import com.lucasnscr.ai_financial_analyst.model.newsAndSentimentals.StockNewsAndSentimentals;
@@ -25,32 +24,29 @@ public class AlphaClientNewsSentimentals {
     private static final Logger log = LoggerFactory.getLogger(AlphaClientNewsSentimentals.class);
 
     private final WebClient webClient;
-    private final NewsAndSentimentalsStockConverter newsAndSentimentalsStockConverter;
-    private final NewsAndSentimentalsCryptoConverter newsAndSentimentalsCryptoConverter;
+    private final NewsAndSentimentalsConverter newsAndSentimentalsConverter;
     private final String apikey;
 
     @Autowired
     public AlphaClientNewsSentimentals(WebClient webClient,
-                       NewsAndSentimentalsStockConverter newsAndSentimentalsStockConverter,
-                       NewsAndSentimentalsCryptoConverter newsAndSentimentalsCryptoConverter,
+                       NewsAndSentimentalsConverter newsAndSentimentalsConverter,
                        @Value("${Alpha.api-key}") String apikey) {
         this.webClient = webClient;
-        this.newsAndSentimentalsStockConverter = newsAndSentimentalsStockConverter;
-        this.newsAndSentimentalsCryptoConverter = newsAndSentimentalsCryptoConverter;
+        this.newsAndSentimentalsConverter = newsAndSentimentalsConverter;
         this.apikey = apikey;
     }
 
     public StockNewsAndSentimentals requestStock(String ticker) {
         return requestDataFromApi(
                 ticker,
-                newsAndSentimentalsStockConverter::convertJsonToStock
+                newsAndSentimentalsConverter::convertJsonToStock
         );
     }
 
     public CryptoNewsAndSentimentals requestCrypto(String ticker) {
         return requestDataFromApi(
                 ticker,
-                newsAndSentimentalsCryptoConverter::convertJsonToCrypto
+                newsAndSentimentalsConverter::convertJsonToCrypto
         );
     }
 
