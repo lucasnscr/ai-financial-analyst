@@ -2,6 +2,9 @@ package com.lucasnscr.ai_financial_analyst.formatter.fundamentals;
 
 import com.lucasnscr.ai_financial_analyst.llm.model.fundamentals.*;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+
+import java.util.Collections;
 
 @Component
 public class FundamentalsFormatter {
@@ -9,97 +12,117 @@ public class FundamentalsFormatter {
     public String formatFundamentalsDataCompanyLLM(FundamentalsDataCompanyLLM fundamentalsDataCompanyLLM) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Stock Information:\n")
-                .append("Symbol: ").append(fundamentalsDataCompanyLLM.getSymbol()).append("\n")
-                .append("Asset Type: ").append(fundamentalsDataCompanyLLM.getAssetType()).append("\n")
-                .append("Name: ").append(fundamentalsDataCompanyLLM.getName()).append("\n")
-                .append("Description: ").append(fundamentalsDataCompanyLLM.getDescription()).append("\n")
-                .append("CIK: ").append(fundamentalsDataCompanyLLM.getCik()).append("\n")
-                .append("Exchange: ").append(fundamentalsDataCompanyLLM.getExchange()).append("\n")
-                .append("Currency: ").append(fundamentalsDataCompanyLLM.getCurrency()).append("\n")
-                .append("Country: ").append(fundamentalsDataCompanyLLM.getCountry()).append("\n")
-                .append("Sector: ").append(fundamentalsDataCompanyLLM.getSector()).append("\n")
-                .append("Industry: ").append(fundamentalsDataCompanyLLM.getIndustry()).append("\n")
-                .append("Address: ").append(fundamentalsDataCompanyLLM.getAddress()).append("\n")
-                .append("Official Site: ").append(fundamentalsDataCompanyLLM.getOfficialSite()).append("\n")
-                .append("Fiscal Year End: ").append(fundamentalsDataCompanyLLM.getFiscalYearEnd()).append("\n")
-                .append("Latest Quarter: ").append(fundamentalsDataCompanyLLM.getLatestQuarter()).append("\n")
-                .append("Market Capitalization: ").append(fundamentalsDataCompanyLLM.getMarketCapitalization()).append("\n")
-                .append("EBITDA: ").append(fundamentalsDataCompanyLLM.getEbitda()).append("\n")
-                .append("P/E Ratio: ").append(fundamentalsDataCompanyLLM.getPeRatio()).append("\n")
-                .append("PEG Ratio: ").append(fundamentalsDataCompanyLLM.getPegRatio()).append("\n")
-                .append("Book Value: ").append(fundamentalsDataCompanyLLM.getBookValue()).append("\n")
-                .append("Dividend per Share: ").append(fundamentalsDataCompanyLLM.getDividendPerShare()).append("\n")
-                .append("Dividend Yield: ").append(fundamentalsDataCompanyLLM.getDividendYield()).append("\n")
-                .append("EPS: ").append(fundamentalsDataCompanyLLM.getEps()).append("\n")
-                .append("Revenue per Share (TTM): ").append(fundamentalsDataCompanyLLM.getRevenuePerShareTTM()).append("\n")
-                .append("Profit Margin: ").append(fundamentalsDataCompanyLLM.getProfitMargin()).append("\n")
-                .append("Operating Margin (TTM): ").append(fundamentalsDataCompanyLLM.getOperatingMarginTTM()).append("\n")
-                .append("Return on Assets (TTM): ").append(fundamentalsDataCompanyLLM.getReturnOnAssetsTTM()).append("\n")
-                .append("Return on Equity (TTM): ").append(fundamentalsDataCompanyLLM.getReturnOnEquityTTM()).append("\n")
-                .append("Revenue (TTM): ").append(fundamentalsDataCompanyLLM.getRevenueTTM()).append("\n")
-                .append("Gross Profit (TTM): ").append(fundamentalsDataCompanyLLM.getGrossProfitTTM()).append("\n")
-                .append("Diluted EPS (TTM): ").append(fundamentalsDataCompanyLLM.getDilutedEPSTTM()).append("\n")
-                .append("Quarterly Earnings Growth (YOY): ").append(fundamentalsDataCompanyLLM.getQuarterlyEarningsGrowthYOY()).append("\n")
-                .append("Quarterly Revenue Growth (YOY): ").append(fundamentalsDataCompanyLLM.getQuarterlyRevenueGrowthYOY()).append("\n")
-                .append("Analyst Target Price: ").append(fundamentalsDataCompanyLLM.getAnalystTargetPrice()).append("\n")
+        sb.append(" Stock Information: ")
+                .append("Symbol: ").append(fundamentalsDataCompanyLLM.getSymbol())
+                .append("Asset Type: ").append(fundamentalsDataCompanyLLM.getAssetType())
+                .append("Name: ").append(fundamentalsDataCompanyLLM.getName())
+                .append("Description: ").append(fundamentalsDataCompanyLLM.getDescription())
+                .append("CIK: ").append(fundamentalsDataCompanyLLM.getCik())
+                .append("Exchange: ").append(fundamentalsDataCompanyLLM.getExchange())
+                .append("Currency: ").append(fundamentalsDataCompanyLLM.getCurrency())
+                .append("Country: ").append(fundamentalsDataCompanyLLM.getCountry())
+                .append("Sector: ").append(fundamentalsDataCompanyLLM.getSector())
+                .append("Industry: ").append(fundamentalsDataCompanyLLM.getIndustry())
+                .append("Address: ").append(fundamentalsDataCompanyLLM.getAddress())
+                .append("Official Site: ").append(fundamentalsDataCompanyLLM.getOfficialSite())
+                .append("Fiscal Year End: ").append(fundamentalsDataCompanyLLM.getFiscalYearEnd())
+                .append("Latest Quarter: ").append(fundamentalsDataCompanyLLM.getLatestQuarter())
+                .append("Market Capitalization: ").append(fundamentalsDataCompanyLLM.getMarketCapitalization())
+                .append("EBITDA: ").append(fundamentalsDataCompanyLLM.getEbitda())
+                .append("P/E Ratio: ").append(fundamentalsDataCompanyLLM.getPeRatio())
+                .append("PEG Ratio: ").append(fundamentalsDataCompanyLLM.getPegRatio())
+                .append("Book Value: ").append(fundamentalsDataCompanyLLM.getBookValue())
+                .append("Dividend per Share: ").append(fundamentalsDataCompanyLLM.getDividendPerShare())
+                .append("Dividend Yield: ").append(fundamentalsDataCompanyLLM.getDividendYield())
+                .append("EPS: ").append(fundamentalsDataCompanyLLM.getEps())
+                .append("Revenue per Share (TTM): ").append(fundamentalsDataCompanyLLM.getRevenuePerShareTTM())
+                .append("Profit Margin: ").append(fundamentalsDataCompanyLLM.getProfitMargin())
+                .append("Operating Margin (TTM): ").append(fundamentalsDataCompanyLLM.getOperatingMarginTTM())
+                .append("Return on Assets (TTM): ").append(fundamentalsDataCompanyLLM.getReturnOnAssetsTTM())
+                .append("Return on Equity (TTM): ").append(fundamentalsDataCompanyLLM.getReturnOnEquityTTM())
+                .append("Revenue (TTM): ").append(fundamentalsDataCompanyLLM.getRevenueTTM())
+                .append("Gross Profit (TTM): ").append(fundamentalsDataCompanyLLM.getGrossProfitTTM())
+                .append("Diluted EPS (TTM): ").append(fundamentalsDataCompanyLLM.getDilutedEPSTTM())
+                .append("Quarterly Earnings Growth (YOY): ").append(fundamentalsDataCompanyLLM.getQuarterlyEarningsGrowthYOY())
+                .append("Quarterly Revenue Growth (YOY): ").append(fundamentalsDataCompanyLLM.getQuarterlyRevenueGrowthYOY())
+                .append("Analyst Target Price: ").append(fundamentalsDataCompanyLLM.getAnalystTargetPrice())
                 .append("Analyst Ratings:\n")
-                .append("\tStrong Buy: ").append(fundamentalsDataCompanyLLM.getAnalystRatingStrongBuy()).append("\n")
-                .append("\tBuy: ").append(fundamentalsDataCompanyLLM.getAnalystRatingBuy()).append("\n")
-                .append("\tHold: ").append(fundamentalsDataCompanyLLM.getAnalystRatingHold()).append("\n")
-                .append("\tSell: ").append(fundamentalsDataCompanyLLM.getAnalystRatingSell()).append("\n")
-                .append("\tStrong Sell: ").append(fundamentalsDataCompanyLLM.getAnalystRatingStrongSell()).append("\n")
-                .append("Trailing P/E: ").append(fundamentalsDataCompanyLLM.getTrailingPE()).append("\n")
-                .append("Forward P/E: ").append(fundamentalsDataCompanyLLM.getForwardPE()).append("\n")
-                .append("Price to Sales Ratio (TTM): ").append(fundamentalsDataCompanyLLM.getPriceToSalesRatioTTM()).append("\n")
-                .append("Price to Book Ratio: ").append(fundamentalsDataCompanyLLM.getPriceToBookRatio()).append("\n")
-                .append("EV to Revenue: ").append(fundamentalsDataCompanyLLM.getEvToRevenue()).append("\n")
-                .append("EV to EBITDA: ").append(fundamentalsDataCompanyLLM.getEvToEBITDA()).append("\n")
-                .append("Beta: ").append(fundamentalsDataCompanyLLM.getBeta()).append("\n")
-                .append("52 Week High: ").append(fundamentalsDataCompanyLLM.getWeek52High()).append("\n")
-                .append("52 Week Low: ").append(fundamentalsDataCompanyLLM.getWeek52Low()).append("\n")
-                .append("50 Day Moving Average: ").append(fundamentalsDataCompanyLLM.getMovingAverage50Day()).append("\n")
-                .append("200 Day Moving Average: ").append(fundamentalsDataCompanyLLM.getMovingAverage200Day()).append("\n")
-                .append("Shares Outstanding: ").append(fundamentalsDataCompanyLLM.getSharesOutstanding()).append("\n")
-                .append("Dividend Date: ").append(fundamentalsDataCompanyLLM.getDividendDate()).append("\n")
-                .append("Ex-Dividend Date: ").append(fundamentalsDataCompanyLLM.getExDividendDate()).append("\n");
+                .append("\tStrong Buy: ").append(fundamentalsDataCompanyLLM.getAnalystRatingStrongBuy())
+                .append("\tBuy: ").append(fundamentalsDataCompanyLLM.getAnalystRatingBuy())
+                .append("\tHold: ").append(fundamentalsDataCompanyLLM.getAnalystRatingHold())
+                .append("\tSell: ").append(fundamentalsDataCompanyLLM.getAnalystRatingSell())
+                .append("\tStrong Sell: ").append(fundamentalsDataCompanyLLM.getAnalystRatingStrongSell())
+                .append("Trailing P/E: ").append(fundamentalsDataCompanyLLM.getTrailingPE())
+                .append("Forward P/E: ").append(fundamentalsDataCompanyLLM.getForwardPE())
+                .append("Price to Sales Ratio (TTM): ").append(fundamentalsDataCompanyLLM.getPriceToSalesRatioTTM())
+                .append("Price to Book Ratio: ").append(fundamentalsDataCompanyLLM.getPriceToBookRatio())
+                .append("EV to Revenue: ").append(fundamentalsDataCompanyLLM.getEvToRevenue())
+                .append("EV to EBITDA: ").append(fundamentalsDataCompanyLLM.getEvToEBITDA())
+                .append("Beta: ").append(fundamentalsDataCompanyLLM.getBeta())
+                .append("52 Week High: ").append(fundamentalsDataCompanyLLM.getWeek52High())
+                .append("52 Week Low: ").append(fundamentalsDataCompanyLLM.getWeek52Low())
+                .append("50 Day Moving Average: ").append(fundamentalsDataCompanyLLM.getMovingAverage50Day())
+                .append("200 Day Moving Average: ").append(fundamentalsDataCompanyLLM.getMovingAverage200Day())
+                .append("Shares Outstanding: ").append(fundamentalsDataCompanyLLM.getSharesOutstanding())
+                .append("Dividend Date: ").append(fundamentalsDataCompanyLLM.getDividendDate())
+                .append("Ex-Dividend Date: ").append(fundamentalsDataCompanyLLM.getExDividendDate());
 
-        sb.append("\nDividends Data:\n");
-        fundamentalsDataCompanyLLM.getDividendsLLMList()
-                .stream()
-                .map(this::formatDividendData)
-                .forEach(sb::append);
+        if (!CollectionUtils.isEmpty(fundamentalsDataCompanyLLM.getDividendsLLMList())){
+            sb.append(" Dividends Data: ");
+            fundamentalsDataCompanyLLM.getDividendsLLMList()
+                    .stream()
+                    .map(this::formatDividendData)
+                    .forEach(sb::append);
+        }
 
-        sb.append("\nStock Split Data:\n");
-        fundamentalsDataCompanyLLM.getSplitLLMList()
-                .stream()
-                .map(this::formatStockSplitData)
-                .forEach(sb::append);
 
-        sb.append("\nIncome Data:\n");
-        fundamentalsDataCompanyLLM.getIncomeLLMList()
-                .stream()
-                .map(this::formatFinancialIncomeData)
-                .forEach(sb::append);
+        if (!CollectionUtils.isEmpty(fundamentalsDataCompanyLLM.getSplitLLMList())){
+            sb.append(" Stock Split Data: ");
+            fundamentalsDataCompanyLLM.getSplitLLMList()
+                    .stream()
+                    .map(this::formatStockSplitData)
+                    .forEach(sb::append);
+        }
 
-        sb.append("\nBalance Data:\n");
-        fundamentalsDataCompanyLLM.getBalanceLLMList()
-                .stream()
-                .map(this::formatBalanceLLM)
-                .forEach(sb::append);
+        if (!CollectionUtils.isEmpty(fundamentalsDataCompanyLLM.getIncomeLLMList())){
+            sb.append(" Income Data: ");
+            fundamentalsDataCompanyLLM.getIncomeLLMList()
+                    .stream()
+                    .map(this::formatFinancialIncomeData)
+                    .forEach(sb::append);
+        }
 
-        sb.append("\nCash Flow Data:\n");
-        fundamentalsDataCompanyLLM.getCashFlowLLMList()
-                .stream()
-                .map(this::formatCashFlowData)
-                .forEach(sb::append);
+        if (!CollectionUtils.isEmpty(fundamentalsDataCompanyLLM.getIncomeLLMList())){
+            sb.append(" Income Data: ");
+            fundamentalsDataCompanyLLM.getIncomeLLMList()
+                    .stream()
+                    .map(this::formatFinancialIncomeData)
+                    .forEach(sb::append);
+        }
 
-        sb.append("\nEarnings Data:\n");
-        fundamentalsDataCompanyLLM.getEarningsLLMList()
-                .stream()
-                .map(this::formatEarningsData)
-                .forEach(sb::append);
+        if (!CollectionUtils.isEmpty(fundamentalsDataCompanyLLM.getBalanceLLMList())){
+            sb.append(" Balance Data: ");
+            fundamentalsDataCompanyLLM.getBalanceLLMList()
+                    .stream()
+                    .map(this::formatBalanceLLM)
+                    .forEach(sb::append);
+        }
 
+        if (!CollectionUtils.isEmpty(fundamentalsDataCompanyLLM.getCashFlowLLMList())){
+            sb.append(" Cash Flow Data: ");
+            fundamentalsDataCompanyLLM.getCashFlowLLMList()
+                    .stream()
+                    .map(this::formatCashFlowData)
+                    .forEach(sb::append);
+        }
+
+        if (!CollectionUtils.isEmpty(fundamentalsDataCompanyLLM.getEarningsLLMList())){
+            sb.append(" Earnings Data: ");
+            fundamentalsDataCompanyLLM.getEarningsLLMList()
+                    .stream()
+                    .map(this::formatEarningsData)
+                    .forEach(sb::append);
+        }
         return sb.toString();
     }
 
