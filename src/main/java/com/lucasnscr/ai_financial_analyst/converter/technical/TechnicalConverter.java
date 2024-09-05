@@ -43,7 +43,7 @@ public class TechnicalConverter {
         Technical technical = new Technical();
         technical.setName(name);
         technical.setDate(LocalDate.now().toString());
-        String content = economyFormatter.formatTechnical(technicalDataLLM);
+        String content = economyFormatter.formatTechnical(name, technicalDataLLM);
         technical.setContentForLLM(Collections.singletonList(content));
         return technical;
     }
