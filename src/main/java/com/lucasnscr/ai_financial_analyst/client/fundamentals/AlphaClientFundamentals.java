@@ -1,7 +1,9 @@
 package com.lucasnscr.ai_financial_analyst.client.fundamentals;
 
 import com.lucasnscr.ai_financial_analyst.client.AlphaClient;
+import com.lucasnscr.ai_financial_analyst.converter.fundamentals.FundamentalsConverter;
 import com.lucasnscr.ai_financial_analyst.exception.AlphaClientException;
+import com.lucasnscr.ai_financial_analyst.model.fundamentals.FundamentalsDataCompany;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +14,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Instant;
-import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.*;
 
 @Component
 public class AlphaClientFundamentals {
@@ -22,20 +23,44 @@ public class AlphaClientFundamentals {
 
     private final WebClient webClient;
     private final String apikey;
+    private final FundamentalsConverter fundamentalsConverter;
+
+    private static final String OVERVIEW = "OVERVIEW";
+    private static final String DIVIDENDS = "DIVIDENDS";
+    private static final String SPLITS = "SPLITS";
+    private static final String INCOME_STATEMENT = "INCOME_STATEMENT";
+    private static final String BALANCE_SHEET = "BALANCE_SHEET";
+    private static final String CASH_FLOW = "CASH_FLOW";
+    private static final String EARNINGS = "EARNINGS";
 
     public AlphaClientFundamentals(WebClient webClient,
-                                   @Value("${Alpha.api-key}") String apikey) {
+                                   @Value("${Alpha.api-key}") String apikey,
+                                   FundamentalsConverter fundamentalsConverter) {
         this.webClient = webClient;
         this.apikey = apikey;
+        this.fundamentalsConverter = fundamentalsConverter;
     }
 
-    private <T> T requestDataFromApi(String ticker, String function, BiFunction<String, JSONObject, T> converter) {
+    public FundamentalsDataCompany requestFundamentalsData(String ticker) {
+        List<String> apiFunctions = Arrays.asList(
+                OVERVIEW, DIVIDENDS, SPLITS,
+                INCOME_STATEMENT, BALANCE_SHEET,
+                CASH_FLOW, EARNINGS);
+        Map<String, JSONObject> responseData = new HashMap<>();
+        for (String function : apiFunctions) {
+            JSONObject jsonObject = requestDataFromApi(ticker, function);
+            responseData.put(function, jsonObject);
+        }
+        return fundamentalsConverter.buildFundamentalsDataCompany(ticker, responseData);
+    }
+
+    private JSONObject requestDataFromApi(String ticker, String function) {
         Map<String, Object> responseJson = performApiRequest(ticker, function);
         if (ObjectUtils.isEmpty(responseJson)) {
             log.warn("Received empty response for ticker: {}", ticker);
             return null;
         }
-        return converter.apply(ticker, new JSONObject(responseJson));
+        return new JSONObject(responseJson);
     }
 
     private Map<String, Object> performApiRequest(String ticker, String function) {
@@ -45,7 +70,7 @@ public class AlphaClientFundamentals {
                     .uri(uriBuilder -> uriBuilder
                             .path("/query")
                             .queryParam("function", function)
-                            .queryParam("tickers", ticker)
+                            .queryParam("symbol", ticker)
                             .queryParam("apikey", apikey)
                             .build())
                     .retrieve()
