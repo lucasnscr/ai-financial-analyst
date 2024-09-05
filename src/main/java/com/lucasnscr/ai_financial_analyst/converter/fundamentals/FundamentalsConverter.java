@@ -33,7 +33,6 @@ public class FundamentalsConverter {
     public FundamentalsDataCompany buildFundamentalsDataCompany(String name, Map<String, JSONObject> responseData) {
         FundamentalsDataCompany dataCompany = null;
         String content = "";
-
         if (!ObjectUtils.isEmpty(responseData)) {
             dataCompany = new FundamentalsDataCompany();
             FundamentalsDataCompanyLLM fundamentalsDataCompanyLLM = new FundamentalsDataCompanyLLM();

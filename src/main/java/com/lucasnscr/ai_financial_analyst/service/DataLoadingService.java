@@ -1,10 +1,12 @@
 package com.lucasnscr.ai_financial_analyst.service;
 
 import com.lucasnscr.ai_financial_analyst.client.AlphaClient;
+import com.lucasnscr.ai_financial_analyst.client.economy.AlphaClientEconomy;
 import com.lucasnscr.ai_financial_analyst.client.fundamentals.AlphaClientFundamentals;
 import com.lucasnscr.ai_financial_analyst.client.market.AlphaClientMarket;
 import com.lucasnscr.ai_financial_analyst.enums.CryptoEnum;
 import com.lucasnscr.ai_financial_analyst.enums.StockEnum;
+import com.lucasnscr.ai_financial_analyst.model.economy.EconomyData;
 import com.lucasnscr.ai_financial_analyst.model.fundamentals.FundamentalsDataCompany;
 import com.lucasnscr.ai_financial_analyst.model.market.Stock;
 import com.lucasnscr.ai_financial_analyst.model.newsAndSentimentals.CryptoNewsAndSentimentals;
@@ -38,9 +40,11 @@ public class DataLoadingService {
     private final StockClassificationRepository stockClassificationRepository;
     private final StockMarketDataRepository stockMarketDataRepository;
     private final FundamentalsDataCompanyRepository fundamentalsDataCompanyRepository;
+    private final EconomyRepository economyRepository;
     private final AlphaClient alphaClient;
     private final AlphaClientMarket alphaClientMarket;
     private final AlphaClientFundamentals alphaClientFundamentals;
+    private final AlphaClientEconomy alphaClientEconomy;
 
     @Autowired
     public DataLoadingService(@Qualifier("vectorStoreDB") VectorStore vectorStore,
@@ -48,29 +52,42 @@ public class DataLoadingService {
                               CryptoNewsAndSentimentalsRepository cryptoRepository,
                               StockClassificationRepository stockClassificationRepository,
                               StockMarketDataRepository stockMarketDataRepository,
-                              FundamentalsDataCompanyRepository fundamentalsDataCompanyRepository,
+                              FundamentalsDataCompanyRepository fundamentalsDataCompanyRepository, EconomyRepository economyRepository,
                               AlphaClient alphaClient,
                               AlphaClientMarket alphaClientMarket,
-                              AlphaClientFundamentals alphaClientFundamentals) {
+                              AlphaClientFundamentals alphaClientFundamentals,
+                              AlphaClientEconomy alphaClientEconomy) {
         this.vectorStore = vectorStore;
         this.stockRepository = stockRepository;
         this.cryptoRepository = cryptoRepository;
         this.stockClassificationRepository = stockClassificationRepository;
         this.stockMarketDataRepository = stockMarketDataRepository;
         this.fundamentalsDataCompanyRepository = fundamentalsDataCompanyRepository;
+        this.economyRepository = economyRepository;
         this.alphaClient = alphaClient;
         this.alphaClientMarket = alphaClientMarket;
         this.alphaClientFundamentals = alphaClientFundamentals;
+        this.alphaClientEconomy = alphaClientEconomy;
     }
 
     public void loadData() {
         log.info("Starting DataLoadingService.");
+        economuData();
         handleStockClassification();
         processEntities(cryptoRepository, CryptoEnum.values(), this::processCryptoNewsAndSentimentals);
         processEntities(stockRepository, StockEnum.values(), this::processStockNewsAndSentimentals);
         processEntities(stockMarketDataRepository, StockEnum.values(), this::processStockMarket);
         processEntities(fundamentalsDataCompanyRepository, StockEnum.values(), this::processFundamentalsDataCompany);
         log.info("DataLoadingService completed.");
+    }
+
+    private void economuData() {
+        EconomyData economyData = alphaClientEconomy.requestEconomy();
+        if (ObjectUtils.isEmpty(economyData)) {
+            return;
+        }
+        economyRepository.save(economyData);
+        saveVectorDb(economyData.getContentForLLM());
     }
 
     private void handleStockClassification() {
