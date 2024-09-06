@@ -19,6 +19,7 @@ import com.lucasnscr.ai_financial_analyst.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -211,11 +212,19 @@ public class DataLoadingService {
         if (CollectionUtils.isEmpty(contentList)) {
             return;
         }
-        List<Document> documents = contentList.stream()
-                .map(Document::new)
-                .collect(Collectors.toList());
-        log.info("Creating embeddings and storing in vector store...");
-        vectorStore.add(documents);
+
+        var textSplitter = new TokenTextSplitter();
+
+        log.info("Parsing document, splitting, creating embeddings and storing in vector store...  this will take a while.");
+        vectorStore.accept(
+                textSplitter.apply(
+                        contentList.stream().map(Document::new).collect(Collectors.toList())));
+        log.info("Done parsing document, splitting, creating embeddings and storing in vector store");
+//        List<Document> documents = contentList.stream()
+//                .map(Document::new)
+//                .collect(Collectors.toList());
+//        log.info("Creating embeddings and storing in vector store...");
+//        vectorStore.add(documents);
         log.info("Done storing embeddings in vector store.");
     }
 }
