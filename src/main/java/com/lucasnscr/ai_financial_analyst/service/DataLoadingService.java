@@ -220,11 +220,5 @@ public class DataLoadingService {
                 textSplitter.apply(
                         contentList.stream().map(Document::new).collect(Collectors.toList())));
         log.info("Done parsing document, splitting, creating embeddings and storing in vector store");
-//        List<Document> documents = contentList.stream()
-//                .map(Document::new)
-//                .collect(Collectors.toList());
-//        log.info("Creating embeddings and storing in vector store...");
-//        vectorStore.add(documents);
-        log.info("Done storing embeddings in vector store.");
     }
 }
