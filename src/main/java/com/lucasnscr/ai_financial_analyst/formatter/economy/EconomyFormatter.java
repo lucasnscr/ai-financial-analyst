@@ -17,6 +17,11 @@ public class EconomyFormatter {
                 .map(this::formatGdpYear)
                 .forEach(sb::append);
 
+        return sb.toString();
+    }
+
+    public String formatTreasury(EconomyLLM economyLLM) {
+        StringBuilder sb = new StringBuilder();
         sb.append("""
         10-Year Treasury Constant Maturity Rate
         Interval: monthly
@@ -26,7 +31,11 @@ public class EconomyFormatter {
                 .stream()
                 .map(this::formatTreasuryMonthly)
                 .forEach(sb::append);
+        return sb.toString();
+    }
 
+    public String formatFundsRate(EconomyLLM economyLLM){
+        StringBuilder sb = new StringBuilder();
         sb.append("""
         Effective Federal Funds Rate
         Interval: monthly
@@ -37,6 +46,11 @@ public class EconomyFormatter {
                 .map(this::formatFederalFundsRate)
                 .forEach(sb::append);
 
+        return sb.toString();
+    }
+
+    public String formatUnployment(EconomyLLM economyLLM){
+        StringBuilder sb = new StringBuilder();
         sb.append("""
         Unemployment Rate
         Interval: monthly
@@ -46,7 +60,11 @@ public class EconomyFormatter {
                 .stream()
                 .map(this::formatUnemployment)
                 .forEach(sb::append);
+        return sb.toString();
+    }
 
+    public String formatInflation(EconomyLLM economyLLM){
+        StringBuilder sb = new StringBuilder();
         sb.append("""
         Inflation - US Consumer Prices
         Interval: annual
@@ -56,7 +74,6 @@ public class EconomyFormatter {
                 .stream()
                 .map(this::formatInflation)
                 .forEach(sb::append);
-
         return sb.toString();
     }
 

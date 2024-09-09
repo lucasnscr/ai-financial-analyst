@@ -47,12 +47,17 @@ public class EconomyConverter {
             }
         });
 
+        List<String> economyContent = new ArrayList<>();
         EconomyData economyData = new EconomyData();
         economyData.setName("United States of America");
         economyData.setDate(LocalDate.now().toString());
 
-        String content = economyFormatter.formatEconomy(economyLLM);
-        economyData.setContentForLLM(Collections.singletonList(content));
+        economyContent.add(economyFormatter.formatEconomy(economyLLM));
+        economyContent.add(economyFormatter.formatFundsRate(economyLLM));
+        economyContent.add(economyFormatter.formatTreasury(economyLLM));
+        economyContent.add(economyFormatter.formatUnployment(economyLLM));
+        economyContent.add(economyFormatter.formatInflation(economyLLM));
+        economyData.setContentForLLM(economyContent);
 
         return economyData;
     }

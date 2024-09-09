@@ -18,11 +18,7 @@ import com.lucasnscr.ai_financial_analyst.model.technical.Technical;
 import com.lucasnscr.ai_financial_analyst.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ai.document.Document;
-import org.springframework.ai.transformer.splitter.TokenTextSplitter;
-import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -31,14 +27,13 @@ import org.springframework.util.ObjectUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 @Service
 public class DataLoadingService {
 
     private static final Logger log = LoggerFactory.getLogger(DataLoadingService.class);
 
-    private final VectorStore vectorStore;
+    private final VectorStoreRepository vectorStoreRepository;
     private final StockNewsAndSentimentalsRepository stockRepository;
     private final CryptoNewsAndSentimentalsRepository cryptoRepository;
     private final StockClassificationRepository stockClassificationRepository;
@@ -54,7 +49,7 @@ public class DataLoadingService {
     private final AlphaClientTechnical alphaClientTechnical;
 
     @Autowired
-    public DataLoadingService(@Qualifier("vectorStoreDB") VectorStore vectorStore,
+    public DataLoadingService(VectorStoreRepository vectorStoreRepository,
                               StockNewsAndSentimentalsRepository stockRepository,
                               CryptoNewsAndSentimentalsRepository cryptoRepository,
                               StockClassificationRepository stockClassificationRepository,
@@ -68,7 +63,7 @@ public class DataLoadingService {
                               AlphaClientClassification alphaClientClassification,
                               AlphaClientNewsSentimentals alphaClientNewsSentimentals,
                               AlphaClientTechnical alphaClientTechnical) {
-        this.vectorStore = vectorStore;
+        this.vectorStoreRepository = vectorStoreRepository;
         this.stockRepository = stockRepository;
         this.cryptoRepository = cryptoRepository;
         this.stockClassificationRepository = stockClassificationRepository;
@@ -102,7 +97,7 @@ public class DataLoadingService {
             return;
         }
         economyRepository.save(economyData);
-        saveVectorDb(economyData.getContentForLLM());
+        vectorStoreRepository.saveVectorDb(economyData.getContentForLLM());
     }
 
     private void handleStockClassification() {
@@ -111,7 +106,7 @@ public class DataLoadingService {
             return;
         }
         stockClassificationRepository.save(stockClassification);
-        saveVectorDb(stockClassification.getContentForLLM());
+        vectorStoreRepository.saveVectorDb(stockClassification.getContentForLLM());
     }
 
     private <T, E extends Enum<E>> void processEntities(MongoRepository<T, String> repository, E[] enumValues, Consumer<E> processor) {
@@ -186,7 +181,7 @@ public class DataLoadingService {
             return;
         }
         saveFunction.accept(entity);
-        saveVectorDb(getContentForLLM(entity));
+        vectorStoreRepository.saveVectorDb(getContentForLLM(entity));
     }
 
     private List<String> getContentForLLM(Object entity) {
@@ -208,17 +203,7 @@ public class DataLoadingService {
         return Collections.emptyList();
     }
 
-    private void saveVectorDb(List<String> contentList) {
-        if (CollectionUtils.isEmpty(contentList)) {
-            return;
-        }
-
-        var textSplitter = new TokenTextSplitter();
-
-        log.info("Parsing document, splitting, creating embeddings and storing in vector store...  this will take a while.");
-        vectorStore.accept(
-                textSplitter.apply(
-                        contentList.stream().map(Document::new).collect(Collectors.toList())));
-        log.info("Done parsing document, splitting, creating embeddings and storing in vector store");
+    public void saveVectorDb(List<String> contentList) {
+        vectorStoreRepository.saveVectorDb(contentList);
     }
 }
