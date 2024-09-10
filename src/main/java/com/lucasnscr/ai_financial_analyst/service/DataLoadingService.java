@@ -1,20 +1,24 @@
 package com.lucasnscr.ai_financial_analyst.service;
 
-import com.lucasnscr.ai_financial_analyst.client.AlphaClient;
+import com.lucasnscr.ai_financial_analyst.client.classification.AlphaClientClassification;
+import com.lucasnscr.ai_financial_analyst.client.economy.AlphaClientEconomy;
+import com.lucasnscr.ai_financial_analyst.client.fundamentals.AlphaClientFundamentals;
+import com.lucasnscr.ai_financial_analyst.client.market.AlphaClientMarket;
+import com.lucasnscr.ai_financial_analyst.client.newsAndSentimentals.AlphaClientNewsSentimentals;
+import com.lucasnscr.ai_financial_analyst.client.technical.AlphaClientTechnical;
 import com.lucasnscr.ai_financial_analyst.enums.CryptoEnum;
 import com.lucasnscr.ai_financial_analyst.enums.StockEnum;
-import com.lucasnscr.ai_financial_analyst.model.Crypto;
-import com.lucasnscr.ai_financial_analyst.model.Stock;
-import com.lucasnscr.ai_financial_analyst.model.StockClassification;
-import com.lucasnscr.ai_financial_analyst.repository.MongoCryptoRepository;
-import com.lucasnscr.ai_financial_analyst.repository.MongoStockClassificationRepository;
-import com.lucasnscr.ai_financial_analyst.repository.MongoStockRepository;
+import com.lucasnscr.ai_financial_analyst.model.economy.EconomyData;
+import com.lucasnscr.ai_financial_analyst.model.fundamentals.FundamentalsDataCompany;
+import com.lucasnscr.ai_financial_analyst.model.market.Stock;
+import com.lucasnscr.ai_financial_analyst.model.newsAndSentimentals.CryptoNewsAndSentimentals;
+import com.lucasnscr.ai_financial_analyst.model.newsAndSentimentals.StockNewsAndSentimentals;
+import com.lucasnscr.ai_financial_analyst.model.classification.StockClassification;
+import com.lucasnscr.ai_financial_analyst.model.technical.Technical;
+import com.lucasnscr.ai_financial_analyst.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ai.document.Document;
-import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -23,51 +27,86 @@ import org.springframework.util.ObjectUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 @Service
 public class DataLoadingService {
 
     private static final Logger log = LoggerFactory.getLogger(DataLoadingService.class);
 
-    private final VectorStore vectorStore;
-    private final MongoStockRepository stockRepository;
-    private final MongoCryptoRepository cryptoRepository;
-    private final MongoStockClassificationRepository stockClassificationRepository;
-    private final AlphaClient alphaClient;
+    private final VectorStoreRepository vectorStoreRepository;
+    private final StockNewsAndSentimentalsRepository stockRepository;
+    private final CryptoNewsAndSentimentalsRepository cryptoRepository;
+    private final StockClassificationRepository stockClassificationRepository;
+    private final StockMarketDataRepository stockMarketDataRepository;
+    private final FundamentalsDataCompanyRepository fundamentalsDataCompanyRepository;
+    private final TechnicalRepository technicalRepository;
+    private final EconomyRepository economyRepository;
+    private final AlphaClientMarket alphaClientMarket;
+    private final AlphaClientFundamentals alphaClientFundamentals;
+    private final AlphaClientEconomy alphaClientEconomy;
+    private final AlphaClientClassification alphaClientClassification;
+    private final AlphaClientNewsSentimentals alphaClientNewsSentimentals;
+    private final AlphaClientTechnical alphaClientTechnical;
 
     @Autowired
-    public DataLoadingService(@Qualifier("vectorStoreDB") VectorStore vectorStore,
-                              MongoStockRepository stockRepository,
-                              MongoCryptoRepository cryptoRepository,
-                              MongoStockClassificationRepository stockClassificationRepository,
-                              AlphaClient alphaClient) {
-        this.vectorStore = vectorStore;
+    public DataLoadingService(VectorStoreRepository vectorStoreRepository,
+                              StockNewsAndSentimentalsRepository stockRepository,
+                              CryptoNewsAndSentimentalsRepository cryptoRepository,
+                              StockClassificationRepository stockClassificationRepository,
+                              StockMarketDataRepository stockMarketDataRepository,
+                              FundamentalsDataCompanyRepository fundamentalsDataCompanyRepository,
+                              TechnicalRepository technicalRepository,
+                              EconomyRepository economyRepository,
+                              AlphaClientMarket alphaClientMarket,
+                              AlphaClientFundamentals alphaClientFundamentals,
+                              AlphaClientEconomy alphaClientEconomy,
+                              AlphaClientClassification alphaClientClassification,
+                              AlphaClientNewsSentimentals alphaClientNewsSentimentals,
+                              AlphaClientTechnical alphaClientTechnical) {
+        this.vectorStoreRepository = vectorStoreRepository;
         this.stockRepository = stockRepository;
         this.cryptoRepository = cryptoRepository;
         this.stockClassificationRepository = stockClassificationRepository;
-        this.alphaClient = alphaClient;
+        this.stockMarketDataRepository = stockMarketDataRepository;
+        this.fundamentalsDataCompanyRepository = fundamentalsDataCompanyRepository;
+        this.technicalRepository = technicalRepository;
+        this.economyRepository = economyRepository;
+        this.alphaClientClassification = alphaClientClassification;
+        this.alphaClientNewsSentimentals = alphaClientNewsSentimentals;
+        this.alphaClientTechnical = alphaClientTechnical;
+        this.alphaClientMarket = alphaClientMarket;
+        this.alphaClientFundamentals = alphaClientFundamentals;
+        this.alphaClientEconomy = alphaClientEconomy;
     }
 
     public void loadData() {
         log.info("Starting DataLoadingService.");
-
+        economyData();
         handleStockClassification();
-
-        processEntities(stockRepository, StockEnum.values(), this::processStock);
-        processEntities(cryptoRepository, CryptoEnum.values(), this::processCrypto);
-
+        processEntities(cryptoRepository, CryptoEnum.values(), this::processCryptoNewsAndSentimentals);
+        processEntities(stockRepository, StockEnum.values(), this::processStockNewsAndSentimentals);
+        processEntities(stockMarketDataRepository, StockEnum.values(), this::processStockMarket);
+        processEntities(fundamentalsDataCompanyRepository, StockEnum.values(), this::processFundamentalsDataCompany);
+        processEntities(technicalRepository, StockEnum.values(), this::processTechnical);
         log.info("DataLoadingService completed.");
     }
 
+    private void economyData() {
+        EconomyData economyData = alphaClientEconomy.requestEconomy();
+        if (ObjectUtils.isEmpty(economyData)) {
+            return;
+        }
+        economyRepository.save(economyData);
+        vectorStoreRepository.saveVectorDb(economyData.getContentForLLM());
+    }
+
     private void handleStockClassification() {
-        StockClassification stockClassification = alphaClient.requestGainersLosers();
+        StockClassification stockClassification = alphaClientClassification.requestGainersLosers();
         if (ObjectUtils.isEmpty(stockClassification)) {
             return;
         }
-
         stockClassificationRepository.save(stockClassification);
-        saveVectorDb(stockClassification.getClassifications());
+        vectorStoreRepository.saveVectorDb(stockClassification.getContentForLLM());
     }
 
     private <T, E extends Enum<E>> void processEntities(MongoRepository<T, String> repository, E[] enumValues, Consumer<E> processor) {
@@ -92,21 +131,48 @@ public class DataLoadingService {
         }
     }
 
-    private void processStock(StockEnum stockEnum) {
+    private void processStockNewsAndSentimentals(StockEnum stockEnum) {
         try {
-            Stock stock = alphaClient.requestStock(stockEnum.getTicker());
-            processEntity(stock, stockRepository::save);
+            StockNewsAndSentimentals stockNewsAndSentimentals = alphaClientNewsSentimentals.requestStock(stockEnum.getTicker());
+            processEntity(stockNewsAndSentimentals, stockRepository::save);
         } catch (Exception e) {
             log.error("Error processing stock: {}", stockEnum.getTicker(), e);
         }
     }
 
-    private void processCrypto(CryptoEnum cryptoEnum) {
+    private void processCryptoNewsAndSentimentals(CryptoEnum cryptoEnum) {
         try {
-            Crypto crypto = alphaClient.requestCrypto(cryptoEnum.getTicker());
-            processEntity(crypto, cryptoRepository::save);
+            CryptoNewsAndSentimentals cryptoNewsAndSentimentals = alphaClientNewsSentimentals.requestCrypto(cryptoEnum.getTicker());
+            processEntity(cryptoNewsAndSentimentals, cryptoRepository::save);
         } catch (Exception e) {
             log.error("Error processing crypto: {}", cryptoEnum.getTicker(), e);
+        }
+    }
+
+    private void processStockMarket(StockEnum stockEnum) {
+        try {
+            Stock stock = alphaClientMarket.requestMarketData(stockEnum.getTicker());
+            processEntity(stock, stockMarketDataRepository::save);
+        } catch (Exception e) {
+            log.error("Error processing ticker: {}", stockEnum.getTicker(), e);
+        }
+    }
+
+    private void processFundamentalsDataCompany(StockEnum stockEnum) {
+        try {
+            FundamentalsDataCompany fundamentalsDataCompany = alphaClientFundamentals.requestFundamentalsData(stockEnum.getTicker());
+            processEntity(fundamentalsDataCompany, fundamentalsDataCompanyRepository::save);
+        } catch (Exception e) {
+            log.error("Error processing ticker: {}", stockEnum.getTicker(), e);
+        }
+    }
+
+    private void processTechnical(StockEnum stockEnum) {
+        try {
+            Technical technical = alphaClientTechnical.requestTechnical(stockEnum.getTicker());
+            processEntity(technical, technicalRepository::save);
+        } catch (Exception e) {
+            log.error("Error processing ticker: {}", stockEnum.getTicker(), e);
         }
     }
 
@@ -115,27 +181,29 @@ public class DataLoadingService {
             return;
         }
         saveFunction.accept(entity);
-        saveVectorDb(getContentForLLM(entity));
+        vectorStoreRepository.saveVectorDb(getContentForLLM(entity));
     }
 
     private List<String> getContentForLLM(Object entity) {
-        if (entity instanceof Stock) {
-            return ((Stock) entity).getContentforLLM();
-        } else if (entity instanceof Crypto) {
-            return ((Crypto) entity).getContentforLLM();
+        if (entity instanceof StockNewsAndSentimentals) {
+            return ((StockNewsAndSentimentals) entity).getContentforLLM();
+        } else if (entity instanceof CryptoNewsAndSentimentals) {
+            return ((CryptoNewsAndSentimentals) entity).getContentforLLM();
+        } else if (entity instanceof Stock) {
+            return ((Stock) entity).getContentForLLM();
+        } else if (entity instanceof StockClassification) {
+            return ((StockClassification) entity).getContentForLLM();
+        } else if (entity instanceof FundamentalsDataCompany) {
+            return ((FundamentalsDataCompany) entity).getContentForLLM();
+        } else if (entity instanceof EconomyData) {
+            return ((EconomyData) entity).getContentForLLM();
+        } else if (entity instanceof Technical) {
+            return ((Technical) entity).getContentForLLM();
         }
         return Collections.emptyList();
     }
 
-    private void saveVectorDb(List<String> contentList) {
-        if (CollectionUtils.isEmpty(contentList)) {
-            return;
-        }
-        List<Document> documents = contentList.stream()
-                .map(Document::new)
-                .collect(Collectors.toList());
-        log.info("Creating embeddings and storing in vector store...");
-        vectorStore.add(documents);
-        log.info("Done storing embeddings in vector store.");
+    public void saveVectorDb(List<String> contentList) {
+        vectorStoreRepository.saveVectorDb(contentList);
     }
 }
