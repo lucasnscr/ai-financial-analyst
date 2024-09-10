@@ -3,7 +3,6 @@ package com.lucasnscr.ai_financial_analyst.config;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.document.MetadataMode;
-import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.openai.OpenAiEmbeddingModel;
 import org.springframework.ai.openai.OpenAiEmbeddingOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
@@ -19,7 +18,7 @@ import org.springframework.retry.annotation.EnableRetry;
 @Configuration
 @EnableRetry
 public class VectorDbConfig {
-//    @Value("${Alpha.api-key}")
+
     @Value("${spring.ai.openai.embedding.api-key}")
     private String openAiApiKey;
 
