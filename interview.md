@@ -1,3 +1,7 @@
+
+
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/gufr7497jybvux2sd6hv.png)
+
 ### 1. **Load Balancer**
 
 The Load Balancer is responsible for distributing incoming traffic across multiple instances of the API Gateway and microservices to ensure high availability and fault tolerance. It helps to scale the system horizontally by adding more instances as needed and provides failover in case of service outages.
