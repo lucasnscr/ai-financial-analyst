@@ -1,6 +1,6 @@
 
 
-![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/gufr7497jybvux2sd6hv.png)
+![Architecture](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/gufr7497jybvux2sd6hv.png)
 
 ### 1. **Load Balancer**
 
