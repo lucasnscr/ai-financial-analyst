@@ -1,4 +1,19 @@
 
+**Functional Requirements:**
+
+   • Registration of short and long-term financial goals.  
+   • Suggestion of relevant financial products.  
+   • Management and tracking of goal progress.  
+   • Notifications and alerts regarding progress (achievements or deviations).  
+   • Intuitive interface and easy integration with the mobile application.
+
+**Non-Functional Requirements:**
+
+   • Scalability to support thousands of simultaneous users.  
+   • High availability to ensure the system is always accessible.  
+   • Security to protect sensitive financial data of clients.  
+   • Fast response and consistent performance.  
+   • Distributed architecture based on microservices.
 
 ![Architecture](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/gufr7497jybvux2sd6hv.png)
 
