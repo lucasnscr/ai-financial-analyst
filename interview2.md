@@ -82,3 +82,25 @@
 
 ### R – Result
 "As a result of the facial recognition solution, the bank saw an 80% increase in operations through digital channels, significantly reducing the reliance on physical branches and enhancing customer experience. The backend framework provided a standardized, efficient development process across four countries, helping developers deliver faster, more secure, and scalable solutions. The framework improved code quality and consistency while reducing development time, ultimately contributing to the bank's digital transformation efforts."
+
+# Culture
+
+## 1. People-first: Prioritizing customers and employees to provide excellent service
+
+In a previous role, I prioritized both the client and team by swiftly reorganizing priorities to address a critical issue. This helped resolve the problem before it escalated and strengthened client relationships. For me, putting people first means ensuring both customers and colleagues feel supported, leading to better outcomes and satisfaction.
+
+## 2. Bold: Encouraging innovation and decisive action
+
+While working at Accenture, I introduced microservices and containers to modernize a legacy system, despite initial resistance. A successful pilot led to broader adoption, improving scalability and reducing costs. I believe being bold means identifying opportunities for innovation and driving change, even when risks are involved.
+
+## 3. Inclusive: Fostering an environment where everyone is valued
+
+On an e-commerce project with a diverse team, I ensured all voices were heard by facilitating collaborative tools and individual check-ins. This led to new ideas and better solutions. Inclusivity, for me, means creating an environment where everyone feels valued and encouraged to contribute.
+
+## 4. Sustainable: Supporting environmental sustainability by reducing carbon emissions
+
+In a banking project, I suggested moving operations to the cloud using GCP’s sustainable energy options and implemented Infrastructure as Code (IaC) to optimize resource use. This reduced both emissions and costs. I see sustainability as a key part of engineering decisions that align with long-term environmental responsibility.
+
+## 5. Trust: Building an atmosphere of mutual respect and trust among colleagues
+
+When a teammate struggled with deadlines due to personal issues, I created a safe space for open discussion, redistributed tasks, and adjusted deadlines. This built mutual trust and led to successful project completion. Trust, for me, is about fostering respect and empathy, allowing colleagues to perform at their best in a supportive environment.
