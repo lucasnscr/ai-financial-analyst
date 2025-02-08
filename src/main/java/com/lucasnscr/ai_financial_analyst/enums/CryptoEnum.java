@@ -1,19 +1,18 @@
 package com.lucasnscr.ai_financial_analyst.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum CryptoEnum {
     BITCOIN("BTC"),
     ETHEREUM("ETH"),
-    RIPPLE("XRP"),
+    XRP("XRP"),
     SOLANA("SOL");
 
     private final String ticker;
 
     CryptoEnum(String ticker) {
         this.ticker = ticker;
-    }
-
-    public String getTicker() {
-        return ticker;
     }
 
 

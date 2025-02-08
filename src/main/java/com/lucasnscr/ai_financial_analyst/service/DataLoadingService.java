@@ -18,7 +18,6 @@ import com.lucasnscr.ai_financial_analyst.model.technical.Technical;
 import com.lucasnscr.ai_financial_analyst.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -48,7 +47,6 @@ public class DataLoadingService {
     private final AlphaClientNewsSentimentals alphaClientNewsSentimentals;
     private final AlphaClientTechnical alphaClientTechnical;
 
-    @Autowired
     public DataLoadingService(
             AIFinancialRepository aIFinancialRepository, StockNewsAndSentimentalsRepository stockRepository,
             CryptoNewsAndSentimentalsRepository cryptoRepository,
@@ -81,13 +79,13 @@ public class DataLoadingService {
 
     public void loadData() {
         log.info("Starting DataLoadingService.");
-//        economyData();
-//        handleStockClassification();
+        economyData();
+        handleStockClassification();
         processEntities(cryptoRepository, CryptoEnum.values(), this::processCryptoNewsAndSentimentals);
-//        processEntities(stockRepository, StockEnum.values(), this::processStockNewsAndSentimentals);
-//        processEntities(stockMarketDataRepository, StockEnum.values(), this::processStockMarket);
-//        processEntities(fundamentalsDataCompanyRepository, StockEnum.values(), this::processFundamentalsDataCompany);
-//        processEntities(technicalRepository, StockEnum.values(), this::processTechnical);
+        processEntities(stockRepository, StockEnum.values(), this::processStockNewsAndSentimentals);
+        processEntities(stockMarketDataRepository, StockEnum.values(), this::processStockMarket);
+        processEntities(fundamentalsDataCompanyRepository, StockEnum.values(), this::processFundamentalsDataCompany);
+        processEntities(technicalRepository, StockEnum.values(), this::processTechnical);
         log.info("DataLoadingService completed.");
     }
 
