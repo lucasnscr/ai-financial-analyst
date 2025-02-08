@@ -33,7 +33,7 @@ public class DataLoadingService {
 
     private static final Logger log = LoggerFactory.getLogger(DataLoadingService.class);
 
-    private final VectorStoreRepository vectorStoreRepository;
+    private final AIFinancialRepository aIFinancialRepository;
     private final StockNewsAndSentimentalsRepository stockRepository;
     private final CryptoNewsAndSentimentalsRepository cryptoRepository;
     private final StockClassificationRepository stockClassificationRepository;
@@ -49,21 +49,21 @@ public class DataLoadingService {
     private final AlphaClientTechnical alphaClientTechnical;
 
     @Autowired
-    public DataLoadingService(VectorStoreRepository vectorStoreRepository,
-                              StockNewsAndSentimentalsRepository stockRepository,
-                              CryptoNewsAndSentimentalsRepository cryptoRepository,
-                              StockClassificationRepository stockClassificationRepository,
-                              StockMarketDataRepository stockMarketDataRepository,
-                              FundamentalsDataCompanyRepository fundamentalsDataCompanyRepository,
-                              TechnicalRepository technicalRepository,
-                              EconomyRepository economyRepository,
-                              AlphaClientMarket alphaClientMarket,
-                              AlphaClientFundamentals alphaClientFundamentals,
-                              AlphaClientEconomy alphaClientEconomy,
-                              AlphaClientClassification alphaClientClassification,
-                              AlphaClientNewsSentimentals alphaClientNewsSentimentals,
-                              AlphaClientTechnical alphaClientTechnical) {
-        this.vectorStoreRepository = vectorStoreRepository;
+    public DataLoadingService(
+            AIFinancialRepository aIFinancialRepository, StockNewsAndSentimentalsRepository stockRepository,
+            CryptoNewsAndSentimentalsRepository cryptoRepository,
+            StockClassificationRepository stockClassificationRepository,
+            StockMarketDataRepository stockMarketDataRepository,
+            FundamentalsDataCompanyRepository fundamentalsDataCompanyRepository,
+            TechnicalRepository technicalRepository,
+            EconomyRepository economyRepository,
+            AlphaClientMarket alphaClientMarket,
+            AlphaClientFundamentals alphaClientFundamentals,
+            AlphaClientEconomy alphaClientEconomy,
+            AlphaClientClassification alphaClientClassification,
+            AlphaClientNewsSentimentals alphaClientNewsSentimentals,
+            AlphaClientTechnical alphaClientTechnical) {
+        this.aIFinancialRepository = aIFinancialRepository;
         this.stockRepository = stockRepository;
         this.cryptoRepository = cryptoRepository;
         this.stockClassificationRepository = stockClassificationRepository;
@@ -81,13 +81,13 @@ public class DataLoadingService {
 
     public void loadData() {
         log.info("Starting DataLoadingService.");
-        economyData();
-        handleStockClassification();
+//        economyData();
+//        handleStockClassification();
         processEntities(cryptoRepository, CryptoEnum.values(), this::processCryptoNewsAndSentimentals);
-        processEntities(stockRepository, StockEnum.values(), this::processStockNewsAndSentimentals);
-        processEntities(stockMarketDataRepository, StockEnum.values(), this::processStockMarket);
-        processEntities(fundamentalsDataCompanyRepository, StockEnum.values(), this::processFundamentalsDataCompany);
-        processEntities(technicalRepository, StockEnum.values(), this::processTechnical);
+//        processEntities(stockRepository, StockEnum.values(), this::processStockNewsAndSentimentals);
+//        processEntities(stockMarketDataRepository, StockEnum.values(), this::processStockMarket);
+//        processEntities(fundamentalsDataCompanyRepository, StockEnum.values(), this::processFundamentalsDataCompany);
+//        processEntities(technicalRepository, StockEnum.values(), this::processTechnical);
         log.info("DataLoadingService completed.");
     }
 
@@ -97,7 +97,7 @@ public class DataLoadingService {
             return;
         }
         economyRepository.save(economyData);
-        vectorStoreRepository.saveVectorDb(economyData.getContentForLLM());
+        aIFinancialRepository.saveVectorDb(economyData.getContentForLLM());
     }
 
     private void handleStockClassification() {
@@ -106,7 +106,7 @@ public class DataLoadingService {
             return;
         }
         stockClassificationRepository.save(stockClassification);
-        vectorStoreRepository.saveVectorDb(stockClassification.getContentForLLM());
+        aIFinancialRepository.saveVectorDb(stockClassification.getContentForLLM());
     }
 
     private <T, E extends Enum<E>> void processEntities(MongoRepository<T, String> repository, E[] enumValues, Consumer<E> processor) {
@@ -181,7 +181,7 @@ public class DataLoadingService {
             return;
         }
         saveFunction.accept(entity);
-        vectorStoreRepository.saveVectorDb(getContentForLLM(entity));
+        aIFinancialRepository.saveVectorDb(getContentForLLM(entity));
     }
 
     private List<String> getContentForLLM(Object entity) {
@@ -204,6 +204,6 @@ public class DataLoadingService {
     }
 
     public void saveVectorDb(List<String> contentList) {
-        vectorStoreRepository.saveVectorDb(contentList);
+        aIFinancialRepository.saveVectorDb(contentList);
     }
 }

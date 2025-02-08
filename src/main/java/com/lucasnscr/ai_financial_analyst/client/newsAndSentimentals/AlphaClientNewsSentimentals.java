@@ -61,6 +61,7 @@ public class AlphaClientNewsSentimentals {
 
     private Map<String, Object> performApiRequest(String ticker) {
         try {
+            log.info("Requesting market data for ticker: {}", ticker);
             log.info("Requesting data from Alpha API at {}", Instant.now());
             return this.webClient.get()
                     .uri(uriBuilder -> uriBuilder
