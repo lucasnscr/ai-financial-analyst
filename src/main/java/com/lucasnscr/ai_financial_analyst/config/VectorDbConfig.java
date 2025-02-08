@@ -3,12 +3,13 @@ package com.lucasnscr.ai_financial_analyst.config;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.document.MetadataMode;
+import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.openai.OpenAiEmbeddingModel;
 import org.springframework.ai.openai.OpenAiEmbeddingOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.retry.RetryUtils;
-import org.springframework.ai.vectorstore.PgVectorStore;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.ai.vectorstore.pgvector.PgVectorStore;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,8 +24,17 @@ public class VectorDbConfig {
     private String openAiApiKey;
 
     @Bean(name = "vectorStoreDB")
-    public VectorStore vectorStore(JdbcTemplate jdbcTemplate, OpenAiEmbeddingModel embeddingModel) {
-        return new PgVectorStore(jdbcTemplate, embeddingModel);
+    public VectorStore vectorStore(JdbcTemplate jdbcTemplate, EmbeddingModel embeddingModel) {
+        return PgVectorStore.builder(jdbcTemplate, embeddingModel)
+                .dimensions(1536)
+                .distanceType(PgVectorStore.PgDistanceType.COSINE_DISTANCE)
+                .indexType(PgVectorStore.PgIndexType.HNSW)
+                .initializeSchema(true)
+                .schemaName("public")
+                .vectorTableName("vector_store")
+                .maxDocumentBatchSize(10000)
+                .removeExistingVectorStoreTable(true)
+                .build();
     }
 
     @Bean
@@ -34,8 +44,8 @@ public class VectorDbConfig {
                 openAiApi,
                 MetadataMode.EMBED,
                 OpenAiEmbeddingOptions.builder()
-                        .withModel("text-embedding-ada-002")
-                        .withUser("user-6")
+                        .model("text-embedding-ada-002")
+                        .user("user-6")
                         .build(),
                 RetryUtils.DEFAULT_RETRY_TEMPLATE);
 
@@ -45,6 +55,4 @@ public class VectorDbConfig {
     public ChatMemory chatMemory() {
         return new InMemoryChatMemory();
     }
-
-
 }
