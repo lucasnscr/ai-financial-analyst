@@ -1,7 +1,9 @@
 package com.lucasnscr.ai_financial_analyst.controller;
 
+import com.lucasnscr.ai_financial_analyst.dto.UserQuestion;
 import com.lucasnscr.ai_financial_analyst.exception.InvalidMessageException;
 import com.lucasnscr.ai_financial_analyst.service.ChatService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,15 +27,12 @@ public class ChatController {
     }
 
     @PostMapping("/question")
-    public Flux<String> handleUserQuestion(@RequestBody String message) {
-        logger.info("Received question: {}", message);
-
-        if (message == null || message.trim().isEmpty()) {
+    public Flux<String> handleUserQuestion(@RequestBody UserQuestion userQuestion) {
+        if (StringUtils.isEmpty(userQuestion.getQuestion()) || StringUtils.trim(userQuestion.getQuestion()).isEmpty()) {
             logger.error("Invalid question received: empty or null message");
             return Flux.error(new InvalidMessageException("Question cannot be null or empty"));
         }
-
-        return chatService.processUserQuestion(message)
+        return chatService.processUserQuestion(userQuestion.getQuestion())
                 .doOnError(error -> logger.error("Error processing question: {}", error.getMessage()));
     }
 

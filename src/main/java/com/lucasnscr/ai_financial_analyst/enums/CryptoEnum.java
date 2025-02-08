@@ -3,14 +3,8 @@ package com.lucasnscr.ai_financial_analyst.enums;
 public enum CryptoEnum {
     BITCOIN("BTC"),
     ETHEREUM("ETH"),
-    TETHER("USDT"),
-    BINANCE_COIN("BNB"),
     RIPPLE("XRP"),
-    USD_COIN("USDC"),
-    DOGECOIN("DOGE"),
-    SOLANA("SOL"),
-    POLYGON("MATIC"),
-    LITECOIN("LTC");
+    SOLANA("SOL");
 
     private final String ticker;
 

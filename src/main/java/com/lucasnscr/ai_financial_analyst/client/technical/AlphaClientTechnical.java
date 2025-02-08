@@ -3,6 +3,8 @@ package com.lucasnscr.ai_financial_analyst.client.technical;
 import com.lucasnscr.ai_financial_analyst.converter.technical.TechnicalConverter;
 import com.lucasnscr.ai_financial_analyst.exception.AlphaClientException;
 import com.lucasnscr.ai_financial_analyst.model.technical.Technical;
+import com.nimbusds.jose.shaded.gson.Gson;
+import com.nimbusds.jose.shaded.gson.JsonObject;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +16,8 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.*;
 
 @Component
 public class AlphaClientTechnical {
@@ -56,7 +56,14 @@ public class AlphaClientTechnical {
             JSONObject jsonObject = requestDataFromApi(ticker, function);
             responseData.put(function, jsonObject);
         }
-        return technicalConverter.buildTechnical(ticker, responseData);
+
+
+        Technical technical = new Technical();
+        technical.setName(ticker);
+        technical.setDate(LocalDate.now().toString());
+        technical.setContentForLLM(parseJsonToStringList(responseData));
+        return technical;
+//        return technicalConverter.buildTechnical(ticker, responseData);
     }
 
     private JSONObject requestDataFromApi(String ticker, String function) {
@@ -70,6 +77,7 @@ public class AlphaClientTechnical {
 
     private Map<String, Object> performApiRequest(String ticker, String function) {
         try {
+            log.info("Requesting market data for ticker: {}", ticker);
             log.info("Requesting data from Alpha API at {}", Instant.now());
             if (RSI.equals(function)) {
                 return webClient.get()
@@ -126,4 +134,38 @@ public class AlphaClientTechnical {
         }
         return Map.of();
     }
+
+    private List<String> parseJsonToStringList(Map<String, JSONObject> responseData){
+
+
+        String macdContent = "";
+        String rsiContent = "";
+        String bBandContent = "";
+        List<String> jsonStringList = new ArrayList<>();
+        if (!ObjectUtils.isEmpty(responseData)){
+            Gson gson = new Gson();
+            JSONObject macd = responseData.get("MACD");
+            if (!ObjectUtils.isEmpty(macd)){
+                JSONObject technicalDataMacd = macd.getJSONObject("Technical Analysis: MACD");
+                macdContent = gson.toJson(technicalDataMacd);
+            }
+
+            JSONObject rsi = responseData.get("RSI");
+            if (!ObjectUtils.isEmpty(rsi)){
+                JSONObject technicalDataRsi = rsi.getJSONObject("Technical Analysis: RSI");
+                rsiContent = gson.toJson(technicalDataRsi);
+            }
+
+            JSONObject bBand = responseData.get("BBANDS");
+            if (!ObjectUtils.isEmpty(bBand)){
+                JSONObject technicalDataBband = bBand.getJSONObject("Technical Analysis: BBANDS");
+                bBandContent = gson.toJson(technicalDataBband);
+            }
+            jsonStringList.add(macdContent);
+            jsonStringList.add(rsiContent);
+            jsonStringList.add(bBandContent);
+        }
+        return jsonStringList;
+    }
+
 }
