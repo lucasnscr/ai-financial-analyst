@@ -30,7 +30,6 @@ public class ChatService {
     private final AIFinancialRepository aIFinancialRepository;
     private final Resource qaSystemPromptResource;
 
-    // Note que agora injetamos o VectorStoreRepository em vez do VectorStore
     public ChatService(ChatClient.Builder chatClientBuilder, AIFinancialRepository aIFinancialRepository,
                        @Value("classpath:/prompts/system-chatbot.st") Resource qaSystemPromptResource) {
         this.chatClient = chatClientBuilder.build();

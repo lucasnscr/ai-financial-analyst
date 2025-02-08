@@ -37,15 +37,12 @@ public class AIFinancialRepository {
         this.embeddingModel = embeddingModel;
         this.chatModel = chatModel;
         this.retrievalAugmentationAdvisor = RetrievalAugmentationAdvisor.builder()
-                .queryTransformers(createQueryTransformer())
+                .queryTransformers(createQueryTransformers())
                 .documentRetriever(createDocumentRetriever())
                 .queryAugmenter(createQueryAugmenter())
                 .build();
     }
 
-    /**
-     * Salva documentos no banco vetorial.
-     */
     public void saveVectorDb(List<String> contentList) {
         if (CollectionUtils.isEmpty(contentList)) {
             return;
@@ -53,26 +50,23 @@ public class AIFinancialRepository {
 
         TokenTextSplitter textSplitter = new TokenTextSplitter();
         List<Document> documentList = textSplitter.apply(
-                contentList.stream().map(Document::new).collect(Collectors.toList())
-        );
+                contentList.stream().map(Document::new).collect(Collectors.toList()));
 
         log.info("Parsing documents, splitting, creating embeddings, and storing in vector store... This will take a while.");
-
         documentList.parallelStream()
                 .filter(Objects::nonNull)
                 .forEach(document -> {
                     Object embedding = embeddingModel.embed(document);
                     document.getMetadata().put("embedding", embedding);
                 });
-
         vectorStore.add(documentList);
         log.info("Done parsing documents, creating embeddings, and storing in vector store.");
     }
 
     public List<Document> retrieveRelevantDocuments(String query) {
         AdvisedRequest request = AdvisedRequest.builder()
+                .chatModel(chatModel)
                 .userText(query)
-//                .userParams(Map.of())
                 .build();
 
         AdvisedRequest advisedRequest = retrievalAugmentationAdvisor.before(request);
@@ -83,13 +77,8 @@ public class AIFinancialRepository {
         return List.of();
     }
 
-    /**
-     * Configura o Query Transformer (Pré-Retrieval).
-     * Reformula perguntas mal estruturadas antes da busca.
-     */
-    private QueryTransformer createQueryTransformer() {
+    private QueryTransformer createQueryTransformers() {
         ChatClient chatClient = ChatClient.builder(chatModel).build();
-
         return RewriteQueryTransformer.builder()
                 .chatClientBuilder(chatClient.mutate())
                 .build();
@@ -104,16 +93,10 @@ public class AIFinancialRepository {
                         new Filter.Expression(
                                 Filter.ExpressionType.EQ,
                                 new Filter.Key("source"),
-                                new Filter.Value("financial_reports")
-                        )
-                )
+                                new Filter.Value("financial_reports")))
                 .build();
     }
 
-    /**
-     * Configura o Query Augmenter (Pós-Retrieval).
-     * Adiciona contexto à consulta antes da geração da resposta.
-     */
     private QueryAugmenter createQueryAugmenter() {
         return ContextualQueryAugmenter.builder()
                 .allowEmptyContext(false)
