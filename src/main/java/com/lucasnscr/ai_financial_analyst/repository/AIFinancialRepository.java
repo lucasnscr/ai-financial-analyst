@@ -1,5 +1,6 @@
 package com.lucasnscr.ai_financial_analyst.repository;
 
+import com.lucasnscr.ai_financial_analyst.model.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -15,7 +16,6 @@ import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.document.Document;
-import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import java.util.List;
@@ -43,7 +43,7 @@ public class AIFinancialRepository {
                 .build();
     }
 
-    public void saveVectorDb(List<String> contentList) {
+    public void saveVectorDb(List<String> contentList, Metadata metadata) {
         if (CollectionUtils.isEmpty(contentList)) {
             return;
         }
@@ -56,8 +56,8 @@ public class AIFinancialRepository {
         documentList.parallelStream()
                 .filter(Objects::nonNull)
                 .forEach(document -> {
-                    Object embedding = embeddingModel.embed(document);
-                    document.getMetadata().put("embedding", embedding);
+                    document.getMetadata().put("metadata", metadata);
+                    embeddingModel.embed(document);
                 });
         vectorStore.add(documentList);
         log.info("Done parsing documents, creating embeddings, and storing in vector store.");
@@ -87,13 +87,8 @@ public class AIFinancialRepository {
     private VectorStoreDocumentRetriever createDocumentRetriever() {
         return VectorStoreDocumentRetriever.builder()
                 .vectorStore(vectorStore)
-                .similarityThreshold(0.80)
+                .similarityThreshold(0.82)
                 .topK(5)
-                .filterExpression(
-                        new Filter.Expression(
-                                Filter.ExpressionType.EQ,
-                                new Filter.Key("source"),
-                                new Filter.Value("financial_reports")))
                 .build();
     }
 

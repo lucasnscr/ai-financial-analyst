@@ -1,14 +1,11 @@
 package com.lucasnscr.ai_financial_analyst.client.technical;
 
-import com.lucasnscr.ai_financial_analyst.converter.technical.TechnicalConverter;
 import com.lucasnscr.ai_financial_analyst.exception.AlphaClientException;
 import com.lucasnscr.ai_financial_analyst.model.technical.Technical;
 import com.nimbusds.jose.shaded.gson.Gson;
-import com.nimbusds.jose.shaded.gson.JsonObject;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
@@ -26,7 +23,6 @@ public class AlphaClientTechnical {
 
     private final WebClient webClient;
     private final String apikey;
-    private final TechnicalConverter technicalConverter;
 
     private static final String RSI = "RSI";
     private static final String MACD = "MACD";
@@ -39,13 +35,10 @@ public class AlphaClientTechnical {
     private static final String OPEN = "open";
     private static final String CLOSE = "close";
 
-    @Autowired
     public AlphaClientTechnical(WebClient webClient,
-                                @Value("${Alpha.api-key}") String apikey,
-                                TechnicalConverter technicalConverter) {
+                                @Value("${Alpha.api-key}") String apikey) {
         this.webClient = webClient;
         this.apikey = apikey;
-        this.technicalConverter = technicalConverter;
     }
 
     public Technical requestTechnical(String ticker) {
