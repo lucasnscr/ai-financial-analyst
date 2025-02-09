@@ -6,7 +6,6 @@ import com.lucasnscr.ai_financial_analyst.model.classification.StockClassificati
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
@@ -26,7 +25,6 @@ public class AlphaClientClassification {
     private final ClassificationConverter classificationConverter;
     private final String apikey;
 
-    @Autowired
     public AlphaClientClassification(WebClient webClient,
                                      ClassificationConverter classificationConverter,
                                      @Value("${Alpha.api-key}") String apikey) {

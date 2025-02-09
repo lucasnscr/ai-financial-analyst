@@ -6,7 +6,6 @@ import com.lucasnscr.ai_financial_analyst.model.market.Stock;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
@@ -27,7 +26,6 @@ public class AlphaClientMarket {
     private final MarketConverter marketConverter;
     private final String apiKey;
 
-    @Autowired
     public AlphaClientMarket(WebClient webClient,
                              MarketConverter marketConverter,
                              @Value("${Alpha.api-key}") String apiKey) {
