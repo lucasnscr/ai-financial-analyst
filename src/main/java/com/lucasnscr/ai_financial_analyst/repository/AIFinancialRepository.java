@@ -95,7 +95,7 @@ public class AIFinancialRepository {
 
     private QueryAugmenter createQueryAugmenter() {
         return ContextualQueryAugmenter.builder()
-                .allowEmptyContext(true)
+                .allowEmptyContext(false)
                 .build();
     }
 
