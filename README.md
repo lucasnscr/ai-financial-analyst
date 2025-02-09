@@ -133,3 +133,6 @@ curl --location 'http://localhost:9090/chat/question' \
 1. **Benchmarks between reasoning models vs general models**: Explore enhancements in preparing the data for the LLM, including adding more contextual data to improve the generated responses.
 2. **Discover new concepts of RAGStorage Optimization**: Best improvent to prevent hallucinations.
 3. **Serverless Architecute**: Check cost and performance using different cloud providers like: AWS, Azure or GCP.
+
+### Medium Storie
+[GenAI Design Patterns to Build a Next-Generation Financial Analysis Application and IA Benchmark](https://l-nascimento-scr.medium.com/genai-design-patterns-to-build-a-next-generation-financial-analysis-application-and-ia-benchmark-9084c021aa33)
