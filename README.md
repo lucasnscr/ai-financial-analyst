@@ -2,7 +2,7 @@
 
 ### Project Description
 
-This project implements a personal financial analyst system that leverages a large language model (LLM), specifically based on GPT-4, to make informed decisions in the financial market. The system collects real-time financial data, such as stock and cryptocurrency information, stores this data in a MongoDB database, and subsequently converts the data into embeddings that are stored in a database with PGVector support. The LLM is then fed with these embeddings to provide accurate and personalized financial insights.
+This project implements a personal financial analyst system that leverages a large language model (LLM), specifically based on GPT-4o and DeepSeek R1, to make informed decisions in the financial market. The system collects real-time financial data, such as stock and cryptocurrency information, stores this data in a MongoDB database, and subsequently converts the data into embeddings that are stored in a database with PGVector support. The LLM is then fed with these embeddings to provide accurate and personalized financial insights.
 
 ### Project Structure
 
@@ -11,7 +11,7 @@ The project is divided into several main components, each responsible for a spec
 - **Data Collection**: Utilizes an external client (`AlphaClient`) to fetch financial data for stocks and cryptocurrencies.
 - **Data Storage**: The collected data is stored in MongoDB for persistence.
 - **Embedding Conversion**: The data is converted into embeddings using the LLM and stored in a PGVector-supported database.
-- **LLM Integration**: The LLM (based on GPT-4) uses these embeddings to generate financial insights and responses.
+- **LLM Integration**: The LLM (based on GPT-4 and DeepSeek R1) uses these embeddings to generate financial insights and responses.
 
 ### Key Components
 
@@ -23,20 +23,22 @@ The project is divided into several main components, each responsible for a spec
 
 - **`LLMContent`**: A component that prepares the content to be used by the LLM to generate embeddings.
 
+-  **`AIFinancialRepository`**: The AIFinancialRepository class integrates embedding generation, vector storage, and retrieval augmentation to index documents with metadata and retrieve similar documents based on user queries. It leverages a chat model, query transformer, document retriever, and query augmenter to support a Retrieval Augmented Generation (RAG) approach. This enables context-rich, similarity-based search in financial applications.
+
 ### Dependencies
 
 The project uses several libraries and frameworks to ensure its functionality. Below are the main dependencies and their versions as specified in the `pom.xml`:
 
 - **Spring Boot**: The main framework used to create the service. It provides easy integration with MongoDB, JPA, and other RESTful services.
-    - Version: `3.3.2`
+    - Version: `3.4.2`
 
 - **MongoDB**: Used to store the collected financial data.
     - Driver: `spring-boot-starter-data-mongodb`
-    - Version: `3.3.2`
+    - Version: `3.4.2`
 
 - **PGVector**: Used to store the embeddings generated from the financial data.
     - Dependency: `spring-ai-pgvector-store` (requires specific configuration in PostgreSQL to support vectors)
-  - Version: `1.0.0-SNAPSHOT`
+  - Version: `1.0.0-M5`
 
 - **SLF4J + Logback**: Used for logging within the project.
     - Version: `2.23.1`
@@ -47,7 +49,11 @@ The project uses several libraries and frameworks to ensure its functionality. B
 
 - **Spring AI**: Spring AI OpenAI provides a streamlined approach to developing AI with gpt model to powered applications using the Spring framework.
     - Dependency: `spring-ai-openai-spring-boot-starter`
-    - Version: `1.0.0-SNAPSHOT`
+    - Version: `1.0.0-M5`
+
+- **Spring AI**: Spring AI Ollama provides a streamlined approach to developing AI with ollama and opensource models. Implementation ready to support differents LLM models: DeepSeek, Mistral, Gemma, Ollama, etc.
+    - Dependency: `spring-ai-ollama-spring-boot-starter`
+    - Version: `1.0.0-M5`
 
 ### Configuration and Execution
 
@@ -56,7 +62,7 @@ The project uses several libraries and frameworks to ensure its functionality. B
 1. **Java 22**: The project uses features of Java 22, so ensure you have this version or higher installed.
 2. **MongoDB**: Required to store financial data. Must be configured and running.
 3. **PostgreSQL with PGVector**: Must have the PGVector plugin installed and configured in PostgreSQL.
-4. **OpenAI API Key**: Required to access the GPT-4o model. Configure your API key in the application properties.
+4. **OpenAI API Key**: If you want use OpenAI model, Required to access the GPT-4o model. Configure your API key in the application properties.
 5. **Alpha API Key**: Required to access the Financial Stock Market API, providing developers with access to a diverse range of financial data.
 
 #### Execution Steps
@@ -122,9 +128,8 @@ curl --location 'http://localhost:9090/chat/question' \
 ```
 
 
-### Future Enhancements
+### Next Steps
 
-1. **Improvement of LLM Integration**: Explore enhancements in preparing the data for the LLM, including adding more contextual data to improve the generated responses.
-2. **Storage Optimization**: Implement caching strategies and optimize the use of MongoDB and PGVector.
-3. **User Interface**: Develop a user interface to facilitate interaction with the financial analyst.
-4. **Serverless Architecute**: Implementing SpringCloudFunctions to deploys applications using Functions in any cloud provider.
+1. **Benchmarks between reasoning models vs general models**: Explore enhancements in preparing the data for the LLM, including adding more contextual data to improve the generated responses.
+2. **Discover new concepts of RAGStorage Optimization**: Best improvent to prevent hallucinations.
+3. **Serverless Architecute**: Check cost and performance using different cloud providers like: AWS, Azure or GCP.
