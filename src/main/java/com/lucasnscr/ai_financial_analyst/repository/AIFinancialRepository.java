@@ -16,7 +16,6 @@ import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.document.Document;
-import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import java.util.List;
@@ -42,6 +41,7 @@ public class AIFinancialRepository {
                 .documentRetriever(createDocumentRetriever())
                 .queryAugmenter(createQueryAugmenter())
                 .build();
+
     }
 
     public void saveVectorDb(List<String> contentList, Metadata metadata) {
@@ -88,19 +88,14 @@ public class AIFinancialRepository {
     private VectorStoreDocumentRetriever createDocumentRetriever() {
         return VectorStoreDocumentRetriever.builder()
                 .vectorStore(vectorStore)
-                .similarityThreshold(0.80)
+                .similarityThreshold(0.65)
                 .topK(5)
-                .filterExpression(
-                        new Filter.Expression(
-                                Filter.ExpressionType.EQ,
-                                new Filter.Key("source"),
-                                new Filter.Value("financial_reports")))
                 .build();
     }
 
     private QueryAugmenter createQueryAugmenter() {
         return ContextualQueryAugmenter.builder()
-                .allowEmptyContext(false)
+                .allowEmptyContext(true)
                 .build();
     }
 

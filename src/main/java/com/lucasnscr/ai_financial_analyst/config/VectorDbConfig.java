@@ -34,4 +34,6 @@ public class VectorDbConfig {
     public ChatMemory chatMemory() {
         return new InMemoryChatMemory();
     }
+
+
 }
