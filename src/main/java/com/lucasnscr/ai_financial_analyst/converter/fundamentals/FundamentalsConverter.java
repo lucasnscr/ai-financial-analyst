@@ -25,7 +25,6 @@ public class FundamentalsConverter {
     private static final String CASH_FLOW = "CASH_FLOW";
     private static final String EARNINGS = "EARNINGS";
 
-    @Autowired
     public FundamentalsConverter(FundamentalsFormatter fundamentalsFormatter) {
         this.fundamentalsFormatter = fundamentalsFormatter;
     }

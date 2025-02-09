@@ -24,7 +24,6 @@ public class EconomyConverter {
 
     private final EconomyFormatter economyFormatter;
 
-    @Autowired
     public EconomyConverter(EconomyFormatter economyFormatter) {
         this.economyFormatter = economyFormatter;
     }
