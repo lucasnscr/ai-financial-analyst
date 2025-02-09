@@ -26,7 +26,7 @@ public class VectorDbConfig {
                 .schemaName("public")
                 .vectorTableName("vector_store")
                 .maxDocumentBatchSize(10000)
-                .removeExistingVectorStoreTable(true)
+                .removeExistingVectorStoreTable(false)
                 .build();
     }
 
