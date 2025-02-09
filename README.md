@@ -134,5 +134,5 @@ curl --location 'http://localhost:9090/chat/question' \
 2. **Discover new concepts of RAGStorage Optimization**: Best improvent to prevent hallucinations.
 3. **Serverless Architecute**: Check cost and performance using different cloud providers like: AWS, Azure or GCP.
 
-### Medium Storie
+### Medium Story
 [GenAI Design Patterns to Build a Next-Generation Financial Analysis Application and IA Benchmark](https://l-nascimento-scr.medium.com/genai-design-patterns-to-build-a-next-generation-financial-analysis-application-and-ia-benchmark-9084c021aa33)
