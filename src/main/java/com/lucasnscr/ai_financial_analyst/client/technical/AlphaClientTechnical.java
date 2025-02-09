@@ -39,7 +39,6 @@ public class AlphaClientTechnical {
     private static final String OPEN = "open";
     private static final String CLOSE = "close";
 
-    @Autowired
     public AlphaClientTechnical(WebClient webClient,
                                 @Value("${Alpha.api-key}") String apikey,
                                 TechnicalConverter technicalConverter) {

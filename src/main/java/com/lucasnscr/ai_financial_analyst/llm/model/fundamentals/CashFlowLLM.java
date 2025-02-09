@@ -9,7 +9,7 @@ public class CashFlowLLM {
     private String reportedCurrency;
     private long operatingCashflow;
     private long paymentsForOperatingActivities;
-    private String proceedsFromOperatingActivities; // can be "None"
+    private String proceedsFromOperatingActivities;
     private long changeInOperatingLiabilities;
     private long changeInOperatingAssets;
     private long depreciationDepletionAndAmortization;
@@ -20,19 +20,19 @@ public class CashFlowLLM {
     private long cashflowFromInvestment;
     private long cashflowFromFinancing;
     private long proceedsFromRepaymentsOfShortTermDebt;
-    private String paymentsForRepurchaseOfCommonStock; // can be "None"
-    private String paymentsForRepurchaseOfEquity; // can be "None"
-    private String paymentsForRepurchaseOfPreferredStock; // can be "None"
+    private String paymentsForRepurchaseOfCommonStock;
+    private String paymentsForRepurchaseOfEquity;
+    private String paymentsForRepurchaseOfPreferredStock;
     private long dividendPayout;
     private long dividendPayoutCommonStock;
-    private String dividendPayoutPreferredStock; // can be "None"
-    private String proceedsFromIssuanceOfCommonStock; // can be "None"
+    private String dividendPayoutPreferredStock;
+    private String proceedsFromIssuanceOfCommonStock;
     private long proceedsFromIssuanceOfLongTermDebtAndCapitalSecuritiesNet;
-    private String proceedsFromIssuanceOfPreferredStock; // can be "None"
+    private String proceedsFromIssuanceOfPreferredStock;
     private long proceedsFromRepurchaseOfEquity;
-    private String proceedsFromSaleOfTreasuryStock; // can be "None"
-    private String changeInCashAndCashEquivalents; // can be "None"
-    private String changeInExchangeRate; // can be "None"
+    private String proceedsFromSaleOfTreasuryStock;
+    private String changeInCashAndCashEquivalents;
+    private String changeInExchangeRate;
     private long netIncome;
 
 }

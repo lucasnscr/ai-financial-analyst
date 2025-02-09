@@ -26,7 +26,6 @@ public class AlphaClientClassification {
     private final ClassificationConverter classificationConverter;
     private final String apikey;
 
-    @Autowired
     public AlphaClientClassification(WebClient webClient,
                                      ClassificationConverter classificationConverter,
                                      @Value("${Alpha.api-key}") String apikey) {

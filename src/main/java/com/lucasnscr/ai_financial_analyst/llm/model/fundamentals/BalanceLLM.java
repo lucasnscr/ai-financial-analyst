@@ -14,7 +14,7 @@ public class BalanceLLM {
     private long currentNetReceivables;
     private long totalNonCurrentAssets;
     private long propertyPlantEquipment;
-    private String accumulatedDepreciationAmortizationPPE; // can be "None"
+    private String accumulatedDepreciationAmortizationPPE;
     private long intangibleAssets;
     private long intangibleAssetsExcludingGoodwill;
     private long goodwill;
@@ -22,7 +22,7 @@ public class BalanceLLM {
     private long longTermInvestments;
     private long shortTermInvestments;
     private long otherCurrentAssets;
-    private String otherNonCurrentAssets; // can be "None"
+    private String otherNonCurrentAssets;
     private long totalLiabilities;
     private long totalCurrentLiabilities;
     private long currentAccountsPayable;

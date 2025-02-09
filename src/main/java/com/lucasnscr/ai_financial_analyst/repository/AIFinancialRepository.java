@@ -1,12 +1,13 @@
 package com.lucasnscr.ai_financial_analyst.repository;
 
+import com.lucasnscr.ai_financial_analyst.model.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.chat.client.advisor.api.AdvisedRequest;
 import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.openai.OpenAiEmbeddingModel;
+import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.rag.generation.augmentation.ContextualQueryAugmenter;
 import org.springframework.ai.rag.generation.augmentation.QueryAugmenter;
 import org.springframework.ai.rag.preretrieval.query.transformation.QueryTransformer;
@@ -28,11 +29,11 @@ public class AIFinancialRepository {
     private static final Logger log = LoggerFactory.getLogger(AIFinancialRepository.class);
 
     private final VectorStore vectorStore;
-    private final OpenAiEmbeddingModel embeddingModel;
+    private final EmbeddingModel embeddingModel;
     private final RetrievalAugmentationAdvisor retrievalAugmentationAdvisor;
     private final ChatModel chatModel;
 
-    public AIFinancialRepository(VectorStore vectorStore, OpenAiEmbeddingModel embeddingModel, ChatModel chatModel) {
+    public AIFinancialRepository(VectorStore vectorStore, EmbeddingModel embeddingModel, ChatModel chatModel) {
         this.vectorStore = vectorStore;
         this.embeddingModel = embeddingModel;
         this.chatModel = chatModel;
@@ -43,7 +44,7 @@ public class AIFinancialRepository {
                 .build();
     }
 
-    public void saveVectorDb(List<String> contentList) {
+    public void saveVectorDb(List<String> contentList, Metadata metadata) {
         if (CollectionUtils.isEmpty(contentList)) {
             return;
         }
@@ -56,8 +57,8 @@ public class AIFinancialRepository {
         documentList.parallelStream()
                 .filter(Objects::nonNull)
                 .forEach(document -> {
-                    Object embedding = embeddingModel.embed(document);
-                    document.getMetadata().put("embedding", embedding);
+                    document.getMetadata().put("metadata", metadata);
+                    embeddingModel.embed(document);
                 });
         vectorStore.add(documentList);
         log.info("Done parsing documents, creating embeddings, and storing in vector store.");

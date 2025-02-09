@@ -27,7 +27,6 @@ public class AlphaClientMarket {
     private final MarketConverter marketConverter;
     private final String apiKey;
 
-    @Autowired
     public AlphaClientMarket(WebClient webClient,
                              MarketConverter marketConverter,
                              @Value("${Alpha.api-key}") String apiKey) {

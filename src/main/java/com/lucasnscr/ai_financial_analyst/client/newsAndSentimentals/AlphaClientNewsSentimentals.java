@@ -29,7 +29,6 @@ public class AlphaClientNewsSentimentals {
     private final NewsAndSentimentalsConverter newsAndSentimentalsConverter;
     private final String apikey;
 
-    @Autowired
     public AlphaClientNewsSentimentals(WebClient webClient,
                        NewsAndSentimentalsConverter newsAndSentimentalsConverter,
                        @Value("${Alpha.api-key}") String apikey) {
