@@ -127,6 +127,10 @@ curl --location 'http://localhost:9090/chat/question' \
 }'
 ```
 
+# AI Financial Analyst Design System
+
+![Design System](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/d5tr7bc7gvdwp2e9kvvo.gif)
+
 
 ### Next Steps
 
